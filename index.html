@@ -517,7 +517,7 @@ window.addEventListener('firebase-ready', async () => {
 });
 
 async function ensureSeedData(){
-  const {db,collection,getDocs,doc,setDoc} = fb;
+  const {db,collection,getDocs,doc,setDoc,getDoc} = fb;
   // Seed branches if collection empty
   const branchSnap = await getDocs(collection(db,'branches'));
   if(branchSnap.empty){
