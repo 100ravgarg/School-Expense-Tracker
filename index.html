@@ -15,7 +15,6 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .hidden{display:none!important}
 
-/* LOGIN */
 #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#1A1A2E 0%,#2D2B55 60%,#3461E0 100%)}
 .login-logo{font-size:52px;margin-bottom:8px}
 .login-title{color:#fff;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
@@ -34,10 +33,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .branch-select-wrap select{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px 16px;width:100%;font-size:15px;color:#fff;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
 .branch-select-wrap select option{background:#2D2B55;color:#fff}
 .login-btn{width:100%;padding:16px;background:linear-gradient(135deg,#4B7BFF,#A259FF);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(75,123,255,0.4)}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
 .login-err{color:#FF6B6B;font-size:13px;text-align:center;margin-top:8px;font-weight:600;min-height:20px}
 .login-hint{color:rgba(255,255,255,0.22);font-size:11px;text-align:center;margin-top:14px;line-height:1.7}
+.sync-status{position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:4px 10px;border-radius:10px;z-index:500;font-weight:600}
+.sync-status.online{background:rgba(0,196,140,0.85)}
+.sync-status.offline{background:rgba(255,71,87,0.85)}
 
-/* HEADER */
 .header{background:linear-gradient(135deg,#4B7BFF 0%,#A259FF 100%);padding:18px 18px 28px;position:relative;overflow:hidden}
 .header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%}
 .header-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
@@ -54,7 +56,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .metric-label{font-size:9px;color:var(--muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
 .metric-sub{font-size:9px;font-weight:700;margin-top:1px}
 
-/* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,0.08);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
 .nav-btn{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none}
 .nav-icon{font-size:20px;display:block}
@@ -63,12 +64,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-dot{width:5px;height:5px;background:var(--blue);border-radius:50%;margin:2px auto 0;display:none}
 .nav-btn.active .nav-dot{display:block}
 
-/* MAIN */
 .main{padding:14px;padding-bottom:100px}
 .section-head{font-size:16px;font-weight:800;color:var(--text);margin:16px 0 12px}
 .section-head-sm{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px}
 
-/* FORM */
 .form-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 4px 20px rgba(75,123,255,0.08);margin-bottom:14px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .form-group{display:flex;flex-direction:column;gap:5px}
@@ -79,19 +78,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);background:#fff
 textarea{min-height:54px;resize:none}
 .add-btn{width:100%;padding:14px;background:linear-gradient(135deg,#4B7BFF,#A259FF);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 6px 20px rgba(75,123,255,0.3)}
 .add-btn:active{transform:scale(0.98)}
+.add-btn:disabled{opacity:0.6;cursor:not-allowed}
 .add-btn.green{background:linear-gradient(135deg,#00C48C,#00D2D3);box-shadow:0 6px 20px rgba(0,196,140,0.3)}
 
-/* BILL PHOTO */
-.bill-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .2s;position:relative}
-.bill-upload-area:hover{border-color:var(--blue)}
+.bill-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;background:var(--bg);position:relative}
 .bill-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .bill-upload-icon{font-size:26px;margin-bottom:6px}
 .bill-upload-label{font-size:12px;color:var(--muted);font-weight:600}
 .bill-preview{width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-top:8px;display:none}
 .bill-preview.show{display:block}
-.bill-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid var(--border)}
 
-/* EXPENSE CARDS */
 .filter-row{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
 .filter-row::-webkit-scrollbar{display:none}
 .filter-pill{white-space:nowrap;padding:7px 13px;border-radius:30px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer}
@@ -110,7 +106,6 @@ textarea{min-height:54px;resize:none}
 .exp-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#EEF2FF;color:var(--blue)}
 .exp-badge.branch{background:#F3EEFF;color:var(--purple)}
 .exp-badge.age{background:#FFF8E6;color:var(--orange)}
-.exp-date{font-size:10px;color:var(--muted)}
 .exp-desc{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .exp-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
 .icon-btn{width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -118,9 +113,7 @@ textarea{min-height:54px;resize:none}
 .icon-btn.del{background:#FFF0F3}
 .icon-btn.view-bill{background:#E6FFF6}
 .icon-btn.contact{background:#FFF8E6;font-size:11px;width:auto;padding:0 7px;height:28px;border-radius:8px;color:var(--orange);font-weight:700;white-space:nowrap}
-.locked-badge{background:#FFF0F3;color:var(--red);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;display:inline-flex;align-items:center;gap:3px}
 
-/* PETTY CASH */
 .alloc-form{background:linear-gradient(135deg,#E6FFF6,#E6F7FF);border:1.5px solid #00C48C40;border-radius:var(--radius);padding:16px;margin-bottom:14px}
 .alloc-form-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px}
 .cash-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 4px 20px rgba(75,123,255,0.08)}
@@ -138,7 +131,6 @@ textarea{min-height:54px;resize:none}
 .cash-stat-label{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:2px}
 .cash-source{font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);line-height:1.8}
 
-/* REPORTS */
 .report-hero{background:linear-gradient(135deg,#4B7BFF,#A259FF);border-radius:var(--radius);padding:18px;color:#fff;margin-bottom:14px;text-align:center}
 .report-hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;opacity:.75}
 .report-hero-val{font-size:36px;font-weight:900;margin:6px 0 4px;letter-spacing:-1px}
@@ -159,7 +151,6 @@ textarea{min-height:54px;resize:none}
 .progress-bar{height:6px;background:var(--bg);border-radius:10px;overflow:hidden}
 .progress-fill{height:100%;border-radius:10px;transition:width .4s ease}
 
-/* MANAGE */
 .manage-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(75,123,255,0.08)}
 .manage-section-title{font-size:14px;font-weight:700;margin-bottom:14px}
 .branch-manage-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -176,7 +167,6 @@ textarea{min-height:54px;resize:none}
 .add-cat-row input{flex:1}
 .add-cat-btn{background:linear-gradient(135deg,#4B7BFF,#A259FF);color:#fff;border:none;border-radius:12px;padding:0 16px;font-size:20px;font-weight:700;cursor:pointer}
 
-/* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:flex-end;justify-content:center}
 .modal-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 18px 34px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
 .modal-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
@@ -190,12 +180,8 @@ textarea{min-height:54px;resize:none}
 .info-box strong{color:var(--blue)}
 .warn-box{background:#FFF8E6;border-left:4px solid var(--orange);border-radius:10px;padding:10px 14px;font-size:12px;color:#7A5000;line-height:1.6;margin-bottom:12px}
 .warn-box strong{color:var(--orange)}
-
-/* BILL VIEWER MODAL */
-#bill-view-modal .modal-sheet{padding-bottom:24px}
 #bill-view-img{width:100%;border-radius:14px;max-height:70vh;object-fit:contain;background:#f0f0f0}
 
-/* TOAST */
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:#1A1A2E;color:#fff;padding:11px 20px;border-radius:28px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .empty-state{text-align:center;padding:44px 24px;color:var(--muted)}
@@ -205,15 +191,19 @@ textarea{min-height:54px;resize:none}
 .daily-total{background:linear-gradient(135deg,#4B7BFF15,#A259FF15);border:1.5px dashed #A259FF60;border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
 .daily-total-label{font-size:11px;color:var(--purple);font-weight:700}
 .daily-total-val{font-size:17px;font-weight:800;color:var(--purple)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- ═══════ LOGIN ═══════ -->
+<div class="sync-status" id="sync-status">🔄 Connecting...</div>
+
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo">🏢</div>
   <div class="login-title">Branch Expense Tracker</div>
-  <div class="login-sub">First Journey School — Multi-Branch Finance</div>
+  <div class="login-sub">First Journey School — Multi-Branch Finance<br><span style="font-size:11px;opacity:0.7">☁️ Synced via Firebase</span></div>
   <div class="role-cards">
     <div class="role-card selected" onclick="selectRole('super')" id="role-super">
       <div class="role-card-icon">👑</div>
@@ -231,13 +221,13 @@ textarea{min-height:54px;resize:none}
       <select id="login-branch-select"><option value="">— Select Your Branch —</option></select>
     </div>
     <input class="login-field" type="password" id="login-pin" placeholder="Enter your PIN" inputmode="numeric" maxlength="8" autocomplete="off">
-    <button class="login-btn" onclick="doLogin()">🔐 Login</button>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">🔐 Login</button>
     <div class="login-err" id="login-err"></div>
-    <div class="login-hint">Super Admin PIN: <strong style="color:rgba(255,255,255,0.5)">1234</strong><br>Branch Admin PIN: <strong style="color:rgba(255,255,255,0.5)">0000</strong> (Kamla Nagar) &nbsp;|&nbsp; <strong style="color:rgba(255,255,255,0.5)">1111</strong> (Shakti Nagar)</div>
+    <div class="login-hint" id="login-hint">Loading branches…</div>
   </div>
 </div>
 
-<!-- ═══════ APP ═══════ -->
+<!-- APP -->
 <div id="app-screen" class="hidden">
   <div class="header">
     <div class="header-top">
@@ -259,7 +249,6 @@ textarea{min-height:54px;resize:none}
   </div>
 
   <div class="main">
-    <!-- ADD TAB -->
     <div id="tab-add">
       <div id="alloc-section">
         <div class="section-head">💵 Allocate Petty Cash</div>
@@ -278,7 +267,7 @@ textarea{min-height:54px;resize:none}
             </div>
             <div class="form-group full"><label class="form-label">📝 Note (optional)</label><input type="text" id="alloc-note" placeholder="e.g. March operations"></div>
           </div>
-          <button class="add-btn green" onclick="allocateCash()">✅ Allocate Cash</button>
+          <button class="add-btn green" id="alloc-btn" onclick="allocateCash()">✅ Allocate Cash</button>
         </div>
       </div>
 
@@ -302,16 +291,13 @@ textarea{min-height:54px;resize:none}
             <button type="button" id="f-bill-clear" onclick="clearBill('f-bill','f-bill-preview','f-bill-clear')" class="hidden" style="margin-top:6px;background:none;border:none;color:var(--red);font-size:12px;font-weight:700;cursor:pointer">✕ Remove Photo</button>
           </div>
         </div>
-        <button class="add-btn" onclick="addExpense()">✅ Add Expense</button>
+        <button class="add-btn" id="add-exp-btn" onclick="addExpense()">✅ Add Expense</button>
       </div>
     </div>
 
-    <!-- LOG TAB -->
     <div id="tab-log" class="hidden">
       <div class="section-head">📋 Expense Log</div>
-      <div id="log-branch-filter-wrap" style="margin-bottom:10px">
-        <select id="log-branch-filter" onchange="renderLog()" style="background:var(--card)"></select>
-      </div>
+      <div id="log-branch-filter-wrap" style="margin-bottom:10px"><select id="log-branch-filter" onchange="renderLog()" style="background:var(--card)"></select></div>
       <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="filter-staff" placeholder="Search staff or note..." oninput="renderLog()"></div>
       <div style="margin-bottom:10px"><input type="date" id="filter-date" onchange="renderLog()" style="background:var(--card)"></div>
       <div class="filter-row" id="cat-filter-row"><div class="filter-pill active" onclick="setFilter(this,'')" data-cat="">All</div></div>
@@ -319,25 +305,22 @@ textarea{min-height:54px;resize:none}
       <div id="expense-list"></div>
     </div>
 
-    <!-- CASH TAB -->
     <div id="tab-cash" class="hidden">
       <div class="section-head">💵 Petty Cash Overview</div>
       <div id="cash-content"></div>
     </div>
 
-    <!-- REPORTS TAB -->
     <div id="tab-summary" class="hidden">
       <div class="section-head">📊 Reports</div>
       <div id="summary-content"></div>
     </div>
 
-    <!-- MANAGE TAB (Super Admin only) -->
     <div id="tab-manage" class="hidden">
       <div class="section-head">⚙️ Manage</div>
       <div class="manage-section">
         <div class="manage-section-title">🏢 Branches</div>
         <div id="branch-manage-list"></div>
-        <div class="info-box" style="margin-top:12px"><strong>Note:</strong> Editing a branch PIN will take effect at the next login for that branch.</div>
+        <div class="info-box" style="margin-top:12px"><strong>Note:</strong> Branch PIN changes apply instantly across all devices via Firestore.</div>
         <div class="form-grid" style="margin-top:12px">
           <div class="form-group"><label class="form-label">Branch Name</label><input type="text" id="new-branch-name" placeholder="e.g. Shakti Nagar"></div>
           <div class="form-group"><label class="form-label">Admin Name</label><input type="text" id="new-branch-admin" placeholder="e.g. Mrs. Sharma"></div>
@@ -362,12 +345,11 @@ textarea{min-height:54px;resize:none}
   </nav>
 </div>
 
-<!-- EDIT EXPENSE MODAL -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay hidden" id="edit-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">✏️ Edit Expense</div>
-    <div id="edit-lock-warn" class="warn-box hidden"><strong>⚠️ Locked:</strong> This expense is older than 2 days. Only Super Admin can edit it.</div>
     <div class="form-grid">
       <div class="form-group"><label class="form-label">📅 Date</label><input type="date" id="e-date"></div>
       <div class="form-group"><label class="form-label">💰 Amount (₹)</label><input type="number" id="e-amount" inputmode="numeric"></div>
@@ -392,33 +374,27 @@ textarea{min-height:54px;resize:none}
   </div>
 </div>
 
-<!-- CONTACT SA MODAL -->
 <div class="modal-overlay hidden" id="contact-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">🔒 Edit / Delete Locked</div>
-    <div class="warn-box">
-      This expense is <strong>older than 2 days</strong> and is locked for editing.<br><br>
-      Please contact <strong>Super Admin (Owner)</strong> to modify or delete this entry. They can log in on the same device and make changes.
-    </div>
+    <div class="warn-box">This expense is <strong>older than 2 days</strong> and is locked for editing.<br><br>Please contact <strong>Super Admin (Owner)</strong> to modify or delete this entry.</div>
     <button class="modal-btn save" style="background:linear-gradient(135deg,#00C48C,#00D2D3)" onclick="closeModal('contact-modal')">✅ Got it</button>
   </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
 <div class="modal-overlay hidden" id="delete-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">🗑️ Delete Expense?</div>
-    <div class="warn-box" style="border-color:var(--red)">This action <strong>cannot be undone</strong>. The expense record will be permanently removed.</div>
+    <div class="warn-box" style="border-color:var(--red)">This action <strong>cannot be undone</strong>.</div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal('delete-modal')">Cancel</button>
-      <button class="modal-btn danger" onclick="confirmDelete()">Delete</button>
+      <button class="modal-btn danger" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- BRANCH EDIT MODAL -->
 <div class="modal-overlay hidden" id="branch-edit-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -426,15 +402,13 @@ textarea{min-height:54px;resize:none}
     <div class="form-group" style="margin-bottom:12px"><label class="form-label">Branch Name</label><input type="text" id="be-name"></div>
     <div class="form-group" style="margin-bottom:12px"><label class="form-label">Admin Name</label><input type="text" id="be-admin"></div>
     <div class="form-group" style="margin-bottom:4px"><label class="form-label">New Admin PIN (leave blank to keep current)</label><input type="text" id="be-pin" placeholder="New 4–8 digit PIN..." inputmode="numeric" maxlength="8"></div>
-    <div class="info-box" style="margin-top:8px"><strong>Current PIN</strong> is hidden for security. Enter a new PIN only if you want to change it.</div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal('branch-edit-modal')">Cancel</button>
-      <button class="modal-btn save" onclick="saveBranchEdit()">Save Changes</button>
+      <button class="modal-btn save" id="branch-save-btn" onclick="saveBranchEdit()">Save Changes</button>
     </div>
   </div>
 </div>
 
-<!-- BILL VIEWER MODAL -->
 <div class="modal-overlay hidden" id="bill-view-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -446,6 +420,33 @@ textarea{min-height:54px;resize:none}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs (modular v9+, loaded via CDN as ES modules) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBGLkgHnIjL82XdlATgMeql-Gz1CLUBdaY",
+  authDomain: "first-journey-expense-tracker.firebaseapp.com",
+  projectId: "first-journey-expense-tracker",
+  storageBucket: "first-journey-expense-tracker.firebasestorage.app",
+  messagingSenderId: "303735390168",
+  appId: "1:303735390168:web:c7be2fa92e9bb7d0fdfcad"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+/* Expose Firestore functions globally so the non-module script below can use them */
+window.__fb = {
+  db, collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, writeBatch
+};
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
 
 <script>
 /* ── CONFIG ── */
@@ -468,41 +469,108 @@ const DEFAULT_BRANCHES=[
   {id:'b2',name:'Shakti Nagar',admin:'Branch Admin SN',pin:'1111'},
 ];
 const DEFAULT_CATS=['Office Supplies & Stationery','Utilities','Travel & Transport','Food & Refreshments','Vendor Payments','Rent & Maintenance','Miscellaneous'];
-// Edit window: expenses within last N days are editable by branch admin
 const EDIT_DAYS = 2;
 
-/* ── STATE ── */
-let state={branches:[],categories:[],expenses:[],allocations:[]};
+/* ── STATE (local cache, kept in sync with Firestore via onSnapshot) ── */
+let state={branches:[],categories:DEFAULT_CATS.slice(),expenses:[],allocations:[]};
 let session={role:null,branchId:null};
 let editId=null,deleteId=null,editBranchId=null;
 let activeFilterCat='';
-// Temp bill data (base64) for add/edit form
-let pendingBillData=null; // for add form
-let editBillData=null;    // for edit form (null=no change, ''=removed, 'data:...'=new)
+let pendingBillData=null;
+let editBillData=null;
+let fb=null; // firestore handle bundle
+let metaDocRef=null;
+let unsubBranches=null, unsubExpenses=null, unsubAllocations=null, unsubMeta=null;
+let firestoreReady=false;
 
-function loadState(){
-  try{const s=localStorage.getItem('fjet_v3');if(s)state=JSON.parse(s);}catch(e){}
-  if(!state.branches||!state.branches.length)state.branches=JSON.parse(JSON.stringify(DEFAULT_BRANCHES));
-  if(!state.categories||!state.categories.length)state.categories=[...DEFAULT_CATS];
-  if(!state.expenses)state.expenses=[];
-  if(!state.allocations)state.allocations=[];
-}
-function saveState(){try{localStorage.setItem('fjet_v3',JSON.stringify(state));}catch(e){}}
 function today(){return new Date().toISOString().slice(0,10);}
 function fmt(n){const v=Math.round(Number(n)||0);if(v>=100000)return '₹'+(v/100000).toFixed(1)+'L';if(v>=1000)return '₹'+(v/1000).toFixed(1)+'K';return '₹'+v.toLocaleString('en-IN');}
 function fmtFull(n){return '₹'+Math.round(Number(n)||0).toLocaleString('en-IN');}
 function branchById(id){return state.branches.find(b=>b.id===id)||{name:'Unknown',admin:''};}
+function daysDiff(dateStr){const now=new Date();now.setHours(0,0,0,0);const d=new Date(dateStr+'T00:00:00');d.setHours(0,0,0,0);return Math.round((now-d)/(1000*60*60*24));}
+function canBranchEdit(expense){return daysDiff(expense.date) < EDIT_DAYS;}
 
-/* Date helpers */
-function daysDiff(dateStr){
-  // How many days ago is dateStr from today (positive = in past)
-  const now=new Date(); now.setHours(0,0,0,0);
-  const d=new Date(dateStr+'T00:00:00'); d.setHours(0,0,0,0);
-  return Math.round((now-d)/(1000*60*60*24));
+function setSyncStatus(s){
+  const el=document.getElementById('sync-status');
+  if(s==='online'){el.textContent='☁️ Synced';el.className='sync-status online';}
+  else if(s==='offline'){el.textContent='⚠️ Offline';el.className='sync-status offline';}
+  else{el.textContent='🔄 Connecting...';el.className='sync-status';}
 }
-function canBranchEdit(expense){
-  // Branch admin can edit if expense is within last EDIT_DAYS days
-  return daysDiff(expense.date) < EDIT_DAYS;
+
+/* ══════════════════════════════════════════
+   FIREBASE INIT & REAL-TIME LISTENERS
+══════════════════════════════════════════ */
+window.addEventListener('firebase-ready', async () => {
+  fb = window.__fb;
+  try {
+    await ensureSeedData();
+    attachListeners();
+    firestoreReady=true;
+    setSyncStatus('online');
+    document.getElementById('login-btn').disabled=false;
+    document.getElementById('login-hint').textContent='Super Admin PIN: 1234';
+  } catch(e){
+    console.error('Firebase init error', e);
+    setSyncStatus('offline');
+    showToast('⚠️ Could not connect to Firebase. Check internet.');
+  }
+});
+
+async function ensureSeedData(){
+  const {db,collection,getDocs,doc,setDoc} = fb;
+  // Seed branches if collection empty
+  const branchSnap = await getDocs(collection(db,'branches'));
+  if(branchSnap.empty){
+    for(const b of DEFAULT_BRANCHES){
+      await setDoc(doc(db,'branches',b.id),{name:b.name,admin:b.admin,pin:b.pin});
+    }
+  }
+  // Seed categories in a single meta doc if missing
+  const metaRef = doc(db,'meta','categories');
+  const metaSnap = await getDoc(metaRef);
+  if(!metaSnap.exists()){
+    await setDoc(metaRef,{list:DEFAULT_CATS});
+  }
+}
+
+function attachListeners(){
+  const {db,collection,doc,onSnapshot,query,orderBy} = fb;
+
+  // Branches
+  unsubBranches = onSnapshot(collection(db,'branches'), snap => {
+    state.branches = snap.docs.map(d=>({id:d.id,...d.data()}));
+    populateLoginBranchSelect();
+    if(session.role) { populateAllSelects(); refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Expenses
+  unsubExpenses = onSnapshot(query(collection(db,'expenses'), orderBy('createdAt','desc')), snap => {
+    state.expenses = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(session.role){ refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Allocations
+  unsubAllocations = onSnapshot(query(collection(db,'allocations'), orderBy('createdAt','desc')), snap => {
+    state.allocations = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(session.role){ refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Categories (single meta doc)
+  unsubMeta = onSnapshot(doc(db,'meta','categories'), snap => {
+    if(snap.exists()){
+      state.categories = snap.data().list || DEFAULT_CATS.slice();
+      populateCatSelects();
+      if(session.role && document.getElementById('tab-manage') && !document.getElementById('tab-manage').classList.contains('hidden')) renderCategories();
+    }
+  }, err => { console.error(err); });
+}
+
+function refreshActiveTab(){
+  const active = TABS.find(t=>!document.getElementById('tab-'+t).classList.contains('hidden'));
+  if(active==='log') renderLog();
+  if(active==='cash') renderCash();
+  if(active==='summary') renderSummary();
+  if(active==='manage'){ renderBranchManage(); }
 }
 
 /* ── LOGIN ── */
@@ -515,10 +583,10 @@ function selectRole(r){
 }
 function populateLoginBranchSelect(){
   const sel=document.getElementById('login-branch-select');
-  sel.innerHTML='<option value="">— Select Your Branch —</option>'+
-    state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  sel.innerHTML='<option value="">— Select Your Branch —</option>'+state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
 }
 function doLogin(){
+  if(!firestoreReady){showToast('⏳ Still connecting, please wait...');return;}
   const pin=document.getElementById('login-pin').value.trim();
   const err=document.getElementById('login-err');
   err.textContent='';
@@ -549,7 +617,7 @@ function startApp(){
   document.getElementById('app-screen').classList.remove('hidden');
   const isSA=session.role==='super';
   document.getElementById('app-title').textContent=isSA?'👑 Super Admin Dashboard':'🏪 '+branchById(session.branchId).name;
-  document.getElementById('app-sub').textContent=isSA?'All Branches Combined View':branchById(session.branchId).admin;
+  document.getElementById('app-sub').textContent=isSA?'All Branches — Live Sync':branchById(session.branchId).admin;
   document.getElementById('role-badge').textContent=isSA?'🔓 Full Access':'🔒 Branch Access';
   document.getElementById('manage-nav-btn').classList.toggle('hidden',!isSA);
   document.getElementById('alloc-section').classList.toggle('hidden',!isSA);
@@ -599,9 +667,11 @@ function populateAllSelects(){
   ['alloc-branch','f-branch','log-branch-filter'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     const isLog=id==='log-branch-filter';
+    const prevVal = el.value;
     el.innerHTML=(isLog?'<option value="">All Branches</option>':'')+
       state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
     if(!isLog&&!isSA)el.value=session.branchId;
+    else if(prevVal) el.value=prevVal;
   });
   populateCatSelects();
 }
@@ -621,11 +691,11 @@ function populateCatSelects(){
 function previewBill(inputId,previewId){
   const file=document.getElementById(inputId).files[0];
   if(!file)return;
+  if(file.size > 900*1024){ showToast('⚠️ Photo too large (max ~900KB). Try a smaller image.'); return; }
   const reader=new FileReader();
   reader.onload=function(ev){
     const img=document.getElementById(previewId);
-    img.src=ev.target.result;
-    img.classList.add('show');
+    img.src=ev.target.result;img.classList.add('show');
     const clearId=inputId.replace('bill','bill-clear');
     document.getElementById(clearId).classList.remove('hidden');
     if(inputId==='f-bill') pendingBillData=ev.target.result;
@@ -636,10 +706,10 @@ function previewBill(inputId,previewId){
 function clearBill(inputId,previewId,clearBtnId){
   document.getElementById(inputId).value='';
   const img=document.getElementById(previewId);
-  img.src=''; img.classList.remove('show');
+  img.src='';img.classList.remove('show');
   document.getElementById(clearBtnId).classList.add('hidden');
   if(inputId==='f-bill') pendingBillData=null;
-  else editBillData=''; // empty string = explicitly removed
+  else editBillData='';
 }
 function viewBill(expId){
   const e=state.expenses.find(x=>x.id===expId);
@@ -649,8 +719,10 @@ function viewBill(expId){
   document.getElementById('bill-view-modal').classList.remove('hidden');
 }
 
-/* ── PETTY CASH ALLOCATION ── */
-function allocateCash(){
+/* ══════════════════════════════════════════
+   FIRESTORE WRITE OPERATIONS
+══════════════════════════════════════════ */
+async function allocateCash(){
   const branchId=document.getElementById('alloc-branch').value;
   const amount=parseFloat(document.getElementById('alloc-amount').value);
   const source=document.getElementById('alloc-source').value;
@@ -658,16 +730,21 @@ function allocateCash(){
   if(!branchId){showToast('⚠️ Select a branch');return;}
   if(!amount||isNaN(amount)||amount<=0){showToast('⚠️ Enter a valid amount');return;}
   if(!source){showToast('⚠️ Source of Funds is required');return;}
-  state.allocations.unshift({id:Date.now(),branchId,amount,source,note,date:today(),by:'Super Admin'});
-  saveState();updateMetrics();
-  document.getElementById('alloc-amount').value='';
-  document.getElementById('alloc-note').value='';
-  document.getElementById('alloc-source').value='';
-  showToast('✅ Cash allocated to '+branchById(branchId).name+'!');
+  const btn=document.getElementById('alloc-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,collection,addDoc} = fb;
+    await addDoc(collection(db,'allocations'),{
+      branchId,amount,source,note,date:today(),by:'Super Admin',createdAt:Date.now()
+    });
+    document.getElementById('alloc-amount').value='';
+    document.getElementById('alloc-note').value='';
+    document.getElementById('alloc-source').value='';
+    showToast('✅ Cash allocated to '+branchById(branchId).name+'!');
+  }catch(e){console.error(e);showToast('⚠️ Failed to save. Check connection.');}
+  btn.disabled=false; btn.textContent='✅ Allocate Cash';
 }
 
-/* ── ADD EXPENSE ── */
-function addExpense(){
+async function addExpense(){
   const isSA=session.role==='super';
   const date=document.getElementById('f-date').value||today();
   const amount=parseFloat(document.getElementById('f-amount').value);
@@ -682,14 +759,18 @@ function addExpense(){
   const spent=state.expenses.filter(e=>e.branchId===branchId).reduce((s,e)=>s+e.amount,0);
   const bal=alloc-spent;
   if(amount>bal){if(!confirm(`⚠️ Amount (${fmtFull(amount)}) exceeds current balance (${fmtFull(bal)}) for ${branchById(branchId).name}.\n\nProceed anyway?`))return;}
-  const expObj={id:Date.now(),date,amount,catIdx,staff,desc,branchId,addedBy:isSA?'Super Admin':branchById(session.branchId).admin};
-  if(pendingBillData) expObj.bill=pendingBillData;
-  state.expenses.unshift(expObj);
-  saveState();updateMetrics();populateCatSelects();
-  document.getElementById('f-amount').value='';
-  document.getElementById('f-desc').value='';
-  clearBill('f-bill','f-bill-preview','f-bill-clear');
-  showToast('✅ Expense added!');
+  const btn=document.getElementById('add-exp-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,collection,addDoc} = fb;
+    const expObj={date,amount,catIdx,staff,desc,branchId,addedBy:isSA?'Super Admin':branchById(session.branchId).admin,createdAt:Date.now()};
+    if(pendingBillData) expObj.bill=pendingBillData;
+    await addDoc(collection(db,'expenses'),expObj);
+    document.getElementById('f-amount').value='';
+    document.getElementById('f-desc').value='';
+    clearBill('f-bill','f-bill-preview','f-bill-clear');
+    showToast('✅ Expense added!');
+  }catch(e){console.error(e);showToast('⚠️ Failed to save. Check connection.');}
+  btn.disabled=false; btn.textContent='✅ Add Expense';
 }
 
 /* ── LOG ── */
@@ -702,14 +783,14 @@ function renderLog(){
   const isSA=session.role==='super';
   const fd=document.getElementById('filter-date').value;
   const fs=document.getElementById('filter-staff').value.toLowerCase();
-  const fb=isSA?document.getElementById('log-branch-filter').value:session.branchId;
+  const fb_=isSA?document.getElementById('log-branch-filter').value:session.branchId;
   let list=state.expenses.filter(e=>{
-    if(fb&&e.branchId!==fb)return false;
+    if(fb_&&e.branchId!==fb_)return false;
     if(fd&&e.date!==fd)return false;
     if(activeFilterCat!==''&&e.catIdx!==parseInt(activeFilterCat))return false;
     if(fs&&!(e.staff.toLowerCase().includes(fs)||(e.desc||'').toLowerCase().includes(fs)))return false;
     return true;
-  }).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  }).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
   const total=list.reduce((s,e)=>s+e.amount,0);
   const bar=document.getElementById('daily-total-bar');
   if(fd&&list.length){bar.classList.remove('hidden');document.getElementById('daily-total-val').textContent=fmtFull(total);}
@@ -724,25 +805,21 @@ function renderLog(){
     const bName=branchById(e.branchId).name;
     const daysAgo=daysDiff(e.date);
     const branchCanEdit=canBranchEdit(e);
-    // Action buttons
     let actions='';
     if(isSA){
-      actions=`<button class="icon-btn edit" onclick="openEdit(${e.id})" title="Edit">✏️</button>
-               <button class="icon-btn del" onclick="openDelete(${e.id})" title="Delete">🗑️</button>`;
+      actions=`<button class="icon-btn edit" onclick="openEdit('${e.id}')" title="Edit">✏️</button>
+               <button class="icon-btn del" onclick="openDelete('${e.id}')" title="Delete">🗑️</button>`;
     } else if(branchCanEdit){
-      actions=`<button class="icon-btn edit" onclick="openEdit(${e.id})" title="Edit">✏️</button>`;
+      actions=`<button class="icon-btn edit" onclick="openEdit('${e.id}')" title="Edit">✏️</button>`;
     } else {
       actions=`<button class="icon-btn contact" onclick="openContactModal()" title="Contact Super Admin">🔒 SA</button>`;
     }
-    if(e.bill) actions=`<button class="icon-btn view-bill" onclick="viewBill(${e.id})" title="View Bill">📸</button>`+actions;
+    if(e.bill) actions=`<button class="icon-btn view-bill" onclick="viewBill('${e.id}')" title="View Bill">📸</button>`+actions;
     const ageLabel=daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago';
     return `<div class="expense-card">
       <div class="exp-icon" style="background:${cfg.colors[0]};color:${cfg.colors[1]}">${cfg.emoji}</div>
       <div class="exp-body">
-        <div class="exp-top">
-          <span class="exp-cat">${catName}</span>
-          <span class="exp-amount" style="background:${grad};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${fmtFull(e.amount)}</span>
-        </div>
+        <div class="exp-top"><span class="exp-cat">${catName}</span><span class="exp-amount" style="background:${grad};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${fmtFull(e.amount)}</span></div>
         <div class="exp-meta">
           <span class="exp-badge">👤 ${e.staff}</span>
           ${isSA?`<span class="exp-badge branch">🏢 ${bName}</span>`:''}
@@ -823,7 +900,6 @@ function renderSummary(){
     const bal=alloc-myExp.reduce((s,e)=>s+e.amount,0);
     html+=`<div class="report-hero"><div class="report-hero-label">${branchById(session.branchId).name} — This Month</div><div class="report-hero-val">${fmtFull(total)}</div><div class="report-hero-sub">${monthExp.length} expenses &nbsp;|&nbsp; Balance: ${fmtFull(bal)}</div></div>`;
   }
-  // Category breakdown
   const scopedExp=isSA?state.expenses.filter(e=>e.date.startsWith(ym)):state.expenses.filter(e=>e.branchId===session.branchId&&e.date.startsWith(ym));
   const catTotals={};scopedExp.forEach(e=>{catTotals[e.catIdx]=(catTotals[e.catIdx]||0)+e.amount;});
   const sorted=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
@@ -848,6 +924,7 @@ function renderSummary(){
 /* ── MANAGE: BRANCHES ── */
 function renderBranchManage(){
   const el=document.getElementById('branch-manage-list');
+  if(!el) return;
   if(!state.branches.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No branches yet.</div>';return;}
   el.innerHTML=state.branches.map(b=>{
     const expCount=state.expenses.filter(e=>e.branchId===b.id).length;
@@ -859,20 +936,21 @@ function renderBranchManage(){
     </div>`;
   }).join('');
 }
-function addBranch(){
+async function addBranch(){
   const name=document.getElementById('new-branch-name').value.trim();
   const admin=document.getElementById('new-branch-admin').value.trim();
   const pin=document.getElementById('new-branch-pin').value.trim();
   if(!name){showToast('⚠️ Enter branch name');return;}
   if(!admin){showToast('⚠️ Enter admin name');return;}
   if(!pin||pin.length<4){showToast('⚠️ PIN must be 4–8 digits');return;}
-  state.branches.push({id:'b'+Date.now(),name,admin,pin});
-  saveState();
-  document.getElementById('new-branch-name').value='';
-  document.getElementById('new-branch-admin').value='';
-  document.getElementById('new-branch-pin').value='';
-  renderBranchManage();populateAllSelects();
-  showToast('✅ Branch added: '+name);
+  try{
+    const {db,collection,addDoc} = fb;
+    await addDoc(collection(db,'branches'),{name,admin,pin});
+    document.getElementById('new-branch-name').value='';
+    document.getElementById('new-branch-admin').value='';
+    document.getElementById('new-branch-pin').value='';
+    showToast('✅ Branch added: '+name);
+  }catch(e){console.error(e);showToast('⚠️ Failed to add branch');}
 }
 function openBranchEdit(id){
   editBranchId=id;
@@ -882,33 +960,45 @@ function openBranchEdit(id){
   document.getElementById('be-pin').value='';
   document.getElementById('branch-edit-modal').classList.remove('hidden');
 }
-function saveBranchEdit(){
+async function saveBranchEdit(){
   const b=state.branches.find(x=>x.id===editBranchId);if(!b)return;
   const name=document.getElementById('be-name').value.trim();
   const admin=document.getElementById('be-admin').value.trim();
   const pin=document.getElementById('be-pin').value.trim();
   if(!name||!admin){showToast('⚠️ Name and admin name required');return;}
   if(pin&&pin.length<4){showToast('⚠️ New PIN must be 4–8 digits');return;}
-  b.name=name;b.admin=admin;
-  if(pin)b.pin=pin;
-  saveState();renderBranchManage();populateAllSelects();
-  closeModal('branch-edit-modal');
-  showToast('✅ Branch updated!'+(pin?' PIN changed.':''));
+  const btn=document.getElementById('branch-save-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,doc,updateDoc} = fb;
+    const updates={name,admin};
+    if(pin) updates.pin=pin;
+    await updateDoc(doc(db,'branches',editBranchId),updates);
+    closeModal('branch-edit-modal');
+    showToast('✅ Branch updated!'+(pin?' PIN changed.':''));
+  }catch(e){console.error(e);showToast('⚠️ Failed to update branch');}
+  btn.disabled=false; btn.textContent='Save Changes';
 }
-function deleteBranch(id){
+async function deleteBranch(id){
   const b=state.branches.find(x=>x.id===id);
   const expCount=state.expenses.filter(e=>e.branchId===id).length;
   if(!confirm(`Delete branch "${b.name}"?\nThis will also delete ${expCount} expense(s) and all allocations.`))return;
-  state.branches=state.branches.filter(x=>x.id!==id);
-  state.expenses=state.expenses.filter(e=>e.branchId!==id);
-  state.allocations=state.allocations.filter(a=>a.branchId!==id);
-  saveState();renderBranchManage();populateAllSelects();updateMetrics();
-  showToast('🗑️ Branch deleted');
+  try{
+    const {db,doc,deleteDoc,collection,getDocs,query,writeBatch} = fb;
+    const batch = writeBatch(db);
+    batch.delete(doc(db,'branches',id));
+    const expSnap = await getDocs(collection(db,'expenses'));
+    expSnap.forEach(d=>{ if(d.data().branchId===id) batch.delete(d.ref); });
+    const allocSnap = await getDocs(collection(db,'allocations'));
+    allocSnap.forEach(d=>{ if(d.data().branchId===id) batch.delete(d.ref); });
+    await batch.commit();
+    showToast('🗑️ Branch deleted');
+  }catch(e){console.error(e);showToast('⚠️ Failed to delete branch');}
 }
 
 /* ── MANAGE: CATEGORIES (Super Admin only) ── */
 function renderCategories(){
   const el=document.getElementById('cat-manage-list');
+  if(!el) return;
   el.innerHTML=state.categories.map((c,i)=>{
     const cfg=CAT_CONFIG[i%CAT_CONFIG.length];
     const count=state.expenses.filter(e=>e.catIdx===i).length;
@@ -920,34 +1010,42 @@ function renderCategories(){
     </div>`;
   }).join('');
 }
+async function saveCategories(){
+  const {db,doc,setDoc} = fb;
+  await setDoc(doc(db,'meta','categories'),{list:state.categories});
+}
 function editCat(i){
   const div=document.getElementById('cname-'+i);const old=state.categories[i];
   const inp=document.createElement('input');inp.value=old;
   inp.style.cssText='width:100%;font-size:13px;font-weight:600;padding:6px 10px;border:1.5px solid #4B7BFF;border-radius:8px;background:#fff;font-family:inherit';
   div.parentNode.replaceChild(inp,div);inp.focus();inp.select();
-  function done(ev){
+  async function done(ev){
     if(ev.type==='keydown'&&ev.key!=='Enter'&&ev.key!=='Escape')return;
     state.categories[i]=(ev.key==='Escape'?old:inp.value.trim())||old;
-    saveState();renderCategories();populateCatSelects();showToast('✅ Category updated!');
+    await saveCategories();
+    renderCategories();populateCatSelects();showToast('✅ Category updated!');
   }
   inp.addEventListener('blur',done);inp.addEventListener('keydown',done);
 }
-function deleteCat(i){
+async function deleteCat(i){
   if(!confirm('Delete "'+state.categories[i]+'"?\nExpenses in this category will show as Unknown.'))return;
-  state.categories.splice(i,1);saveState();renderCategories();populateCatSelects();showToast('🗑️ Category deleted');
+  state.categories.splice(i,1);
+  await saveCategories();
+  renderCategories();populateCatSelects();showToast('🗑️ Category deleted');
 }
-function addCategory(){
+async function addCategory(){
   const inp=document.getElementById('new-cat-input');const name=inp.value.trim();
   if(!name){showToast('⚠️ Enter a category name');return;}
-  state.categories.push(name);inp.value='';
-  saveState();renderCategories();populateCatSelects();showToast('✅ Category added!');
+  state.categories.push(name);
+  await saveCategories();
+  inp.value='';
+  renderCategories();populateCatSelects();showToast('✅ Category added!');
 }
 
 /* ── EDIT / DELETE ── */
 function openEdit(id){
   const isSA=session.role==='super';
   const e=state.expenses.find(x=>x.id===id);if(!e)return;
-  // Check permission
   if(!isSA&&!canBranchEdit(e)){openContactModal();return;}
   editId=id;editBillData=null;
   populateCatSelects();
@@ -956,33 +1054,42 @@ function openEdit(id){
   document.getElementById('e-cat').value=e.catIdx;
   document.getElementById('e-staff').value=e.staff;
   document.getElementById('e-desc').value=e.desc||'';
-  // Bill preview
   const img=document.getElementById('e-bill-preview');
   const clrBtn=document.getElementById('e-bill-clear');
   if(e.bill){img.src=e.bill;img.classList.add('show');clrBtn.classList.remove('hidden');}
   else{img.src='';img.classList.remove('show');clrBtn.classList.add('hidden');}
   document.getElementById('e-bill').value='';
-  // Lock warning for branch admin (shouldn't reach here but just in case)
-  document.getElementById('edit-lock-warn').classList.add('hidden');
   document.getElementById('edit-modal').classList.remove('hidden');
 }
-function saveEdit(){
+async function saveEdit(){
   const e=state.expenses.find(x=>x.id===editId);if(!e)return;
-  e.date=document.getElementById('e-date').value;
-  e.amount=parseFloat(document.getElementById('e-amount').value)||0;
-  e.catIdx=parseInt(document.getElementById('e-cat').value);
-  e.staff=document.getElementById('e-staff').value.trim();
-  e.desc=document.getElementById('e-desc').value.trim();
-  // Handle bill
-  if(editBillData===null){/* no change */}
-  else if(editBillData===''){delete e.bill;}
-  else{e.bill=editBillData;}
-  saveState();updateMetrics();renderLog();closeModal('edit-modal');showToast('✅ Expense updated!');
+  const btn=document.getElementById('edit-save-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,doc,updateDoc} = fb;
+    const updates={
+      date:document.getElementById('e-date').value,
+      amount:parseFloat(document.getElementById('e-amount').value)||0,
+      catIdx:parseInt(document.getElementById('e-cat').value),
+      staff:document.getElementById('e-staff').value.trim(),
+      desc:document.getElementById('e-desc').value.trim()
+    };
+    if(editBillData===null){/* no change */}
+    else if(editBillData===''){updates.bill='';}
+    else{updates.bill=editBillData;}
+    await updateDoc(doc(db,'expenses',editId),updates);
+    closeModal('edit-modal');showToast('✅ Expense updated!');
+  }catch(e2){console.error(e2);showToast('⚠️ Failed to update');}
+  btn.disabled=false; btn.textContent='Save Changes';
 }
 function openDelete(id){deleteId=id;document.getElementById('delete-modal').classList.remove('hidden');}
-function confirmDelete(){
-  state.expenses=state.expenses.filter(e=>e.id!==deleteId);
-  saveState();updateMetrics();renderLog();closeModal('delete-modal');showToast('🗑️ Expense deleted');
+async function confirmDelete(){
+  const btn=document.getElementById('confirm-delete-btn'); btn.disabled=true; btn.textContent='Deleting...';
+  try{
+    const {db,doc,deleteDoc} = fb;
+    await deleteDoc(doc(db,'expenses',deleteId));
+    closeModal('delete-modal');showToast('🗑️ Expense deleted');
+  }catch(e){console.error(e);showToast('⚠️ Failed to delete');}
+  btn.disabled=false; btn.textContent='Delete';
 }
 function openContactModal(){document.getElementById('contact-modal').classList.remove('hidden');}
 function closeModal(id){
@@ -1011,10 +1118,22 @@ function showToast(msg){
 }
 
 /* ── INIT ── */
-loadState();
-populateLoginBranchSelect();
+document.getElementById('login-btn').disabled=true;
 document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('f-date').value=today();
+
+window.addEventListener('online', ()=>{ if(firestoreReady) setSyncStatus('online'); });
+window.addEventListener('offline', ()=>setSyncStatus('offline'));
+
+/* Expose functions used by inline onclick handlers (since this script is not a module) */
+window.selectRole=selectRole; window.doLogin=doLogin; window.doLogout=doLogout;
+window.showTab=showTab; window.allocateCash=allocateCash; window.addExpense=addExpense;
+window.setFilter=setFilter; window.previewBill=previewBill; window.clearBill=clearBill;
+window.viewBill=viewBill; window.openEdit=openEdit; window.saveEdit=saveEdit;
+window.openDelete=openDelete; window.confirmDelete=confirmDelete; window.openContactModal=openContactModal;
+window.closeModal=closeModal; window.exportCSV=exportCSV; window.addBranch=addBranch;
+window.openBranchEdit=openBranchEdit; window.saveBranchEdit=saveBranchEdit; window.deleteBranch=deleteBranch;
+window.editCat=editCat; window.deleteCat=deleteCat; window.addCategory=addCategory;
 </script>
 </body>
 </html>
