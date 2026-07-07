@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>First Journey — Branch Expense Tracker</title>
+<style>
+:root {
+  --blue:#4B7BFF;--purple:#A259FF;--green:#00C48C;--teal:#00D2D3;
+  --orange:#FF6B35;--red:#FF4757;--yellow:#FFD23F;--pink:#FF4D8D;
+  --bg:#F0F2FF;--card:#fff;--text:#1A1A2E;--muted:#8892A4;
+  --border:#E8ECFF;--radius:18px;--radius-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hidden{display:none!important}
+
+#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#1A1A2E 0%,#2D2B55 60%,#3461E0 100%)}
+.login-logo{font-size:52px;margin-bottom:8px}
+.login-title{color:#fff;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+.login-sub{color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:32px;text-align:center}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:420px;margin-bottom:24px}
+.role-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s}
+.role-card.selected{background:rgba(75,123,255,0.3);border-color:#4B7BFF}
+.role-card-icon{font-size:30px;margin-bottom:8px}
+.role-card-label{color:#fff;font-size:13px;font-weight:700}
+.role-card-sub{color:rgba(255,255,255,0.45);font-size:11px;margin-top:3px}
+.login-form{width:100%;max-width:420px}
+.login-field{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px 16px;width:100%;font-size:15px;color:#fff;margin-bottom:12px;font-family:inherit;letter-spacing:2px;text-align:center;outline:none}
+.login-field::placeholder{letter-spacing:0;color:rgba(255,255,255,0.3)}
+.login-field:focus{border-color:#4B7BFF;background:rgba(255,255,255,0.12)}
+.branch-select-wrap{margin-bottom:12px}
+.branch-select-wrap select{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px 16px;width:100%;font-size:15px;color:#fff;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
+.branch-select-wrap select option{background:#2D2B55;color:#fff}
+.login-btn{width:100%;padding:16px;background:linear-gradient(135deg,#4B7BFF,#A259FF);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(75,123,255,0.4)}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.login-err{color:#FF6B6B;font-size:13px;text-align:center;margin-top:8px;font-weight:600;min-height:20px}
+.login-hint{color:rgba(255,255,255,0.22);font-size:11px;text-align:center;margin-top:14px;line-height:1.7}
+.sync-status{position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:4px 10px;border-radius:10px;z-index:500;font-weight:600}
+.sync-status.online{background:rgba(0,196,140,0.85)}
+.sync-status.offline{background:rgba(255,71,87,0.85)}
+
+.header{background:linear-gradient(135deg,#4B7BFF 0%,#A259FF 100%);padding:18px 18px 28px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.header-title{color:#fff;font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.header-sub{color:rgba(255,255,255,0.65);font-size:11px;margin-top:3px}
+.header-badge{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:4px;display:inline-block}
+.header-actions{display:flex;gap:8px;align-items:center}
+.hdr-btn{background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:7px 12px;border-radius:24px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 14px;margin-top:12px;position:relative;z-index:2}
+.metric-card{background:var(--card);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;box-shadow:0 4px 20px rgba(75,123,255,0.12)}
+.metric-icon{font-size:18px;margin-bottom:3px}
+.metric-val{font-size:14px;font-weight:800;color:var(--text);line-height:1}
+.metric-label{font-size:9px;color:var(--muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.metric-sub{font-size:9px;font-weight:700;margin-top:1px}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,0.08);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none}
+.nav-icon{font-size:20px;display:block}
+.nav-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:1px}
+.nav-btn.active .nav-label{color:var(--blue)}
+.nav-dot{width:5px;height:5px;background:var(--blue);border-radius:50%;margin:2px auto 0;display:none}
+.nav-btn.active .nav-dot{display:block}
+
+.main{padding:14px;padding-bottom:100px}
+.section-head{font-size:16px;font-weight:800;color:var(--text);margin:16px 0 12px}
+.section-head-sm{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px}
+
+.form-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 4px 20px rgba(75,123,255,0.08);margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);background:#fff}
+textarea{min-height:54px;resize:none}
+.add-btn{width:100%;padding:14px;background:linear-gradient(135deg,#4B7BFF,#A259FF);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 6px 20px rgba(75,123,255,0.3)}
+.add-btn:active{transform:scale(0.98)}
+.add-btn:disabled{opacity:0.6;cursor:not-allowed}
+.add-btn.green{background:linear-gradient(135deg,#00C48C,#00D2D3);box-shadow:0 6px 20px rgba(0,196,140,0.3)}
+
+.bill-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;background:var(--bg);position:relative}
+.bill-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.bill-upload-icon{font-size:26px;margin-bottom:6px}
+.bill-upload-label{font-size:12px;color:var(--muted);font-weight:600}
+.bill-preview{width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-top:8px;display:none}
+.bill-preview.show{display:block}
+
+.filter-row{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-pill{white-space:nowrap;padding:7px 13px;border-radius:30px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer}
+.filter-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.search-box{position:relative;margin-bottom:10px}
+.search-box input{padding-left:36px;background:var(--card)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted)}
+
+.expense-card{background:var(--card);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:11px;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.exp-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.exp-body{flex:1;min-width:0}
+.exp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.exp-cat{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.exp-amount{font-size:15px;font-weight:800}
+.exp-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
+.exp-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#EEF2FF;color:var(--blue)}
+.exp-badge.branch{background:#F3EEFF;color:var(--purple)}
+.exp-badge.age{background:#FFF8E6;color:var(--orange)}
+.exp-desc{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
+.icon-btn.edit{background:#EEF2FF}
+.icon-btn.del{background:#FFF0F3}
+.icon-btn.view-bill{background:#E6FFF6}
+.icon-btn.contact{background:#FFF8E6;font-size:11px;width:auto;padding:0 7px;height:28px;border-radius:8px;color:var(--orange);font-weight:700;white-space:nowrap}
+
+.alloc-form{background:linear-gradient(135deg,#E6FFF6,#E6F7FF);border:1.5px solid #00C48C40;border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.alloc-form-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px}
+.cash-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 4px 20px rgba(75,123,255,0.08)}
+.cash-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cash-branch-name{font-size:15px;font-weight:800}
+.cash-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px}
+.cash-badge.ok{background:#E6FFF6;color:var(--green)}
+.cash-badge.low{background:#FFF8E6;color:var(--orange)}
+.cash-badge.empty{background:#FFF0F3;color:var(--red)}
+.cash-bar-wrap{height:8px;background:var(--bg);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.cash-bar-fill{height:100%;border-radius:10px;transition:width .4s ease}
+.cash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cash-stat{text-align:center;padding:8px 4px;background:var(--bg);border-radius:10px}
+.cash-stat-val{font-size:14px;font-weight:800}
+.cash-stat-label{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:2px}
+.cash-source{font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);line-height:1.8}
+
+.report-hero{background:linear-gradient(135deg,#4B7BFF,#A259FF);border-radius:var(--radius);padding:18px;color:#fff;margin-bottom:14px;text-align:center}
+.report-hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;opacity:.75}
+.report-hero-val{font-size:36px;font-weight:900;margin:6px 0 4px;letter-spacing:-1px}
+.report-hero-sub{font-size:11px;opacity:.7}
+.branch-report-card{background:var(--card);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.brc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brc-name{font-size:14px;font-weight:800}
+.brc-total{font-size:16px;font-weight:800;background:linear-gradient(135deg,#4B7BFF,#A259FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.brc-stat{background:var(--bg);border-radius:10px;padding:8px 6px;text-align:center}
+.brc-stat-val{font-size:13px;font-weight:800}
+.brc-stat-label{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:2px}
+.cat-stat-card{background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.cat-stat-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cat-stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.cat-stat-name{font-size:13px;font-weight:700;flex:1}
+.cat-stat-amount{font-size:15px;font-weight:800}
+.progress-bar{height:6px;background:var(--bg);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;border-radius:10px;transition:width .4s ease}
+
+.manage-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 4px 20px rgba(75,123,255,0.08)}
+.manage-section-title{font-size:14px;font-weight:700;margin-bottom:14px}
+.branch-manage-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.branch-manage-row:last-child{border-bottom:none}
+.bmr-icon{width:38px;height:38px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.bmr-info{flex:1}
+.bmr-name{font-size:13px;font-weight:700}
+.bmr-admin{font-size:11px;color:var(--muted);margin-top:1px}
+.cat-manage-card{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.cat-color-dot{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.cat-name-text{flex:1;font-size:13px;font-weight:600}
+.cat-count{font-size:10px;color:var(--muted);font-weight:600;margin-top:1px}
+.add-cat-row{display:flex;gap:8px;margin-top:12px}
+.add-cat-row input{flex:1}
+.add-cat-btn{background:linear-gradient(135deg,#4B7BFF,#A259FF);color:#fff;border:none;border-radius:12px;padding:0 16px;font-size:20px;font-weight:700;cursor:pointer}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 18px 34px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;margin-top:14px}
+.modal-btn{flex:1;padding:13px;border-radius:var(--radius);font-size:14px;font-weight:700;border:none;cursor:pointer}
+.modal-btn.cancel{background:var(--bg);color:var(--muted)}
+.modal-btn.save{background:linear-gradient(135deg,#4B7BFF,#A259FF);color:#fff}
+.modal-btn.danger{background:linear-gradient(135deg,#FF4757,#FF6B35);color:#fff}
+.info-box{background:linear-gradient(135deg,#EEF2FF,#F3EEFF);border-left:4px solid var(--blue);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:12px}
+.info-box strong{color:var(--blue)}
+.warn-box{background:#FFF8E6;border-left:4px solid var(--orange);border-radius:10px;padding:10px 14px;font-size:12px;color:#7A5000;line-height:1.6;margin-bottom:12px}
+.warn-box strong{color:var(--orange)}
+#bill-view-img{width:100%;border-radius:14px;max-height:70vh;object-fit:contain;background:#f0f0f0}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:#1A1A2E;color:#fff;padding:11px 20px;border-radius:28px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.empty-state{text-align:center;padding:44px 24px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:10px}
+.empty-state p{font-size:15px;font-weight:600}
+.empty-state span{font-size:12px}
+.daily-total{background:linear-gradient(135deg,#4B7BFF15,#A259FF15);border:1.5px dashed #A259FF60;border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.daily-total-label{font-size:11px;color:var(--purple);font-weight:700}
+.daily-total-val{font-size:17px;font-weight:800;color:var(--purple)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<div class="sync-status" id="sync-status">🔄 Connecting...</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">🏢</div>
+  <div class="login-title">Branch Expense Tracker</div>
+  <div class="login-sub">First Journey School — Multi-Branch Finance<br><span style="font-size:11px;opacity:0.7">☁️ Synced via Firebase</span></div>
+  <div class="role-cards">
+    <div class="role-card selected" onclick="selectRole('super')" id="role-super">
+      <div class="role-card-icon">👑</div>
+      <div class="role-card-label">Super Admin</div>
+      <div class="role-card-sub">Owner / Full Access</div>
+    </div>
+    <div class="role-card" onclick="selectRole('branch')" id="role-branch">
+      <div class="role-card-icon">🏪</div>
+      <div class="role-card-label">Branch Admin</div>
+      <div class="role-card-sub">Office Manager</div>
+    </div>
+  </div>
+  <div class="login-form">
+    <div id="branch-select-wrap" class="branch-select-wrap hidden">
+      <select id="login-branch-select"><option value="">— Select Your Branch —</option></select>
+    </div>
+    <input class="login-field" type="password" id="login-pin" placeholder="Enter your PIN" inputmode="numeric" maxlength="8" autocomplete="off">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">🔐 Login</button>
+    <div class="login-err" id="login-err"></div>
+    <div id="forgot-pin-link" style="text-align:center;margin-top:10px">
+      <span style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline" onclick="openForgotPin()">Forgot PIN?</span>
+    </div>
+    <div class="login-hint" id="login-hint">Loading branches…</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" class="hidden">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title" id="app-title">💼 Expense Tracker</div>
+        <div class="header-sub" id="app-sub"></div>
+        <div class="header-badge" id="role-badge"></div>
+      </div>
+      <div class="header-actions">
+        <button class="hdr-btn" onclick="exportCSV()">⬇ CSV</button>
+        <button class="hdr-btn" onclick="doLogout()">🚪 Out</button>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric-card"><div class="metric-icon">💵</div><div class="metric-val" id="m-allocated">₹0</div><div class="metric-label">Allocated</div></div>
+      <div class="metric-card"><div class="metric-icon">📤</div><div class="metric-val" id="m-spent">₹0</div><div class="metric-label">Spent</div></div>
+      <div class="metric-card"><div class="metric-icon">💰</div><div class="metric-val" id="m-balance">₹0</div><div class="metric-label">Balance</div><div class="metric-sub" id="m-balance-sub"></div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="tab-add">
+      <div id="alloc-section">
+        <div class="section-head" id="alloc-section-head">💵 Allocate Petty Cash</div>
+        <div class="alloc-form">
+          <div class="alloc-form-title" id="alloc-form-title">🏦 Send Cash to Branch</div>
+          <div class="form-grid">
+            <div class="form-group full" id="alloc-branch-wrap"><label class="form-label">🏢 Branch</label><select id="alloc-branch"></select></div>
+            <div class="form-group"><label class="form-label">💰 Amount (₹)</label><input type="number" id="alloc-amount" placeholder="0" min="0" inputmode="numeric"></div>
+            <div class="form-group full">
+              <label class="form-label">🏦 Source of Funds <span style="color:var(--red)">*required</span></label>
+              <select id="alloc-source">
+                <option value="">— Select Source —</option>
+                <option>Bank Withdrawal</option><option>Owner's Pocket</option>
+                <option>Head Office Transfer</option><option>Cash in Hand</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group full"><label class="form-label">📝 Note (optional)</label><input type="text" id="alloc-note" placeholder="e.g. March operations"></div>
+          </div>
+          <button class="add-btn green" id="alloc-btn" onclick="allocateCash()">✅ Allocate Cash</button>
+        </div>
+      </div>
+
+      <div class="section-head">➕ Add Expense</div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">📅 Date</label><input type="date" id="f-date"></div>
+          <div class="form-group"><label class="form-label">💰 Amount (₹)</label><input type="number" id="f-amount" placeholder="0" min="0" inputmode="numeric"></div>
+          <div class="form-group full" id="f-branch-wrap"><label class="form-label">🏢 Branch</label><select id="f-branch"></select></div>
+          <div class="form-group full"><label class="form-label">🏷️ Category</label><select id="f-cat"></select></div>
+          <div class="form-group full"><label class="form-label">👤 Staff / Added By</label><input type="text" id="f-staff" placeholder="Who is adding this?"></div>
+          <div class="form-group full"><label class="form-label">📝 Description</label><textarea id="f-desc" placeholder="Brief note..."></textarea></div>
+          <div class="form-group full">
+            <label class="form-label">📸 Bill / Receipt Photo (optional)</label>
+            <div class="bill-upload-area" onclick="document.getElementById('f-bill').click()">
+              <input type="file" id="f-bill" accept="image/*" capture="environment" style="display:none" onchange="previewBill('f-bill','f-bill-preview')">
+              <div class="bill-upload-icon">📷</div>
+              <div class="bill-upload-label">Tap to take photo or upload bill</div>
+              <img class="bill-preview" id="f-bill-preview" alt="Bill preview">
+            </div>
+            <button type="button" id="f-bill-clear" onclick="clearBill('f-bill','f-bill-preview','f-bill-clear')" class="hidden" style="margin-top:6px;background:none;border:none;color:var(--red);font-size:12px;font-weight:700;cursor:pointer">✕ Remove Photo</button>
+          </div>
+        </div>
+        <button class="add-btn" id="add-exp-btn" onclick="addExpense()">✅ Add Expense</button>
+      </div>
+    </div>
+
+    <div id="tab-log" class="hidden">
+      <div class="section-head">📋 Expense Log</div>
+      <div id="log-branch-filter-wrap" style="margin-bottom:10px"><select id="log-branch-filter" onchange="renderLog()" style="background:var(--card)"></select></div>
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="filter-staff" placeholder="Search staff or note..." oninput="renderLog()"></div>
+      <div style="margin-bottom:10px"><input type="date" id="filter-date" onchange="renderLog()" style="background:var(--card)"></div>
+      <div class="filter-row" id="cat-filter-row"><div class="filter-pill active" onclick="setFilter(this,'')" data-cat="">All</div></div>
+      <div id="daily-total-bar" class="daily-total hidden"><span class="daily-total-label">📆 Day Total</span><span class="daily-total-val" id="daily-total-val">₹0</span></div>
+      <div id="expense-list"></div>
+    </div>
+
+    <div id="tab-cash" class="hidden">
+      <div class="section-head">💵 Petty Cash Overview</div>
+      <div id="cash-content"></div>
+    </div>
+
+    <div id="tab-summary" class="hidden">
+      <div class="section-head">📊 Reports</div>
+      <div class="filter-row" id="rep-preset-row">
+        <div class="filter-pill active" data-preset="month" onclick="setRepPreset('month',this)">This Month</div>
+        <div class="filter-pill" data-preset="week" onclick="setRepPreset('week',this)">This Week</div>
+        <div class="filter-pill" data-preset="today" onclick="setRepPreset('today',this)">Today</div>
+        <div class="filter-pill" data-preset="all" onclick="setRepPreset('all',this)">All Time</div>
+        <div class="filter-pill" data-preset="custom" onclick="setRepPreset('custom',this)">Custom</div>
+      </div>
+      <div id="rep-custom-row" class="form-grid hidden" style="margin-bottom:10px">
+        <div class="form-group"><label class="form-label">From</label><input type="date" id="rep-from" onchange="renderSummary()"></div>
+        <div class="form-group"><label class="form-label">To</label><input type="date" id="rep-to" onchange="renderSummary()"></div>
+      </div>
+      <div id="rep-branch-wrap" class="hidden" style="margin-bottom:10px"><select id="rep-branch" onchange="renderSummary()" style="background:var(--card)"></select></div>
+      <div id="rep-cat-row" class="filter-row"></div>
+      <div id="summary-content"></div>
+      <div class="section-head-sm">Export This Report</div>
+      <div class="form-grid" style="margin-bottom:10px">
+        <button class="add-btn green" style="margin-top:0" onclick="exportExcel()">📊 Excel</button>
+        <button class="add-btn" style="margin-top:0;background:linear-gradient(135deg,#FF6B35,#FF4D8D)" onclick="exportPDF()">📄 PDF</button>
+      </div>
+      <div class="section-head-sm">💰 Cash Added (Allocations) — This Report Range</div>
+      <div id="rep-alloc-content"></div>
+    </div>
+
+    <div id="tab-manage" class="hidden">
+      <div class="section-head">⚙️ Manage</div>
+      <div class="manage-section">
+        <div class="manage-section-title">🏢 Branches</div>
+        <div id="branch-manage-list"></div>
+        <div class="info-box" style="margin-top:12px"><strong>Note:</strong> Branch PIN changes apply instantly across all devices via Firestore.</div>
+        <div class="form-grid" style="margin-top:12px">
+          <div class="form-group"><label class="form-label">Branch Name</label><input type="text" id="new-branch-name" placeholder="e.g. Shakti Nagar"></div>
+          <div class="form-group"><label class="form-label">Admin Name</label><input type="text" id="new-branch-admin" placeholder="e.g. Mrs. Sharma"></div>
+          <div class="form-group"><label class="form-label">Admin PIN (4–8 digits)</label><input type="text" id="new-branch-pin" placeholder="e.g. 5678" inputmode="numeric" maxlength="8"></div>
+          <div class="form-group" style="display:flex;align-items:flex-end"><button class="add-btn green" style="margin-top:0;padding:11px" onclick="addBranch()">+ Add Branch</button></div>
+        </div>
+      </div>
+      <div class="manage-section">
+        <div class="manage-section-title">🏷️ Expense Categories</div>
+        <div id="cat-manage-list"></div>
+        <div class="add-cat-row"><input type="text" id="new-cat-input" placeholder="New category name..."><button class="add-cat-btn" onclick="addCategory()">+</button></div>
+      </div>
+      <div class="manage-section">
+        <div class="manage-section-title">🔐 Security — Super Admin PIN</div>
+        <div class="info-box"><strong>Note:</strong> Only you (Super Admin) can see or change this. Branch admins have no access to this section.</div>
+        <div class="form-grid">
+          <div class="form-group full"><label class="form-label">Current PIN</label><input type="text" id="sa-current-pin" placeholder="Enter current PIN" inputmode="numeric" maxlength="8"></div>
+          <div class="form-group"><label class="form-label">New PIN (4–8 digits)</label><input type="text" id="sa-new-pin" placeholder="New PIN" inputmode="numeric" maxlength="8"></div>
+          <div class="form-group"><label class="form-label">Confirm New PIN</label><input type="text" id="sa-confirm-pin" placeholder="Repeat new PIN" inputmode="numeric" maxlength="8"></div>
+        </div>
+        <button class="add-btn" id="sa-pin-btn" style="margin-top:12px" onclick="changeSuperPin()">🔐 Update PIN</button>
+
+        <div style="margin-top:22px;padding-top:18px;border-top:1.5px dashed var(--border)">
+          <div class="manage-section-title" style="font-size:13px">🛟 Recovery PIN (for "Forgot PIN?")</div>
+          <div id="recovery-pin-status" style="font-size:12px;margin-bottom:10px"></div>
+          <div class="info-box">Set a secret Recovery PIN — different from your login PIN. If you ever forget your login PIN, use "Forgot PIN?" on the login screen with this Recovery PIN to set a new one. Keep it written down somewhere safe & private.</div>
+          <div class="form-grid">
+            <div class="form-group full"><label class="form-label">Current Login PIN (to confirm it's you)</label><input type="text" id="sa-current-pin-2" placeholder="Enter current PIN" inputmode="numeric" maxlength="8"></div>
+            <div class="form-group"><label class="form-label">New Recovery PIN</label><input type="text" id="sa-recovery-pin" placeholder="e.g. 9988" inputmode="numeric" maxlength="8"></div>
+            <div class="form-group"><label class="form-label">Confirm Recovery PIN</label><input type="text" id="sa-recovery-confirm" placeholder="Repeat" inputmode="numeric" maxlength="8"></div>
+          </div>
+          <button class="add-btn green" id="sa-recovery-btn" style="margin-top:12px" onclick="saveRecoveryPin()">🛟 Save Recovery PIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showTab('add',this)"><span class="nav-icon">➕</span><span class="nav-label">Add</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" onclick="showTab('log',this)"><span class="nav-icon">📋</span><span class="nav-label">Log</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" onclick="showTab('cash',this)"><span class="nav-icon">💵</span><span class="nav-label">Cash</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" onclick="showTab('summary',this)"><span class="nav-icon">📊</span><span class="nav-label">Reports</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="manage-nav-btn" onclick="showTab('manage',this)"><span class="nav-icon">⚙️</span><span class="nav-label">Manage</span><div class="nav-dot"></div></button>
+  </nav>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay hidden" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Expense</div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">📅 Date</label><input type="date" id="e-date"></div>
+      <div class="form-group"><label class="form-label">💰 Amount (₹)</label><input type="number" id="e-amount" inputmode="numeric"></div>
+      <div class="form-group full"><label class="form-label">🏷️ Category</label><select id="e-cat"></select></div>
+      <div class="form-group full"><label class="form-label">👤 Staff Name</label><input type="text" id="e-staff"></div>
+      <div class="form-group full"><label class="form-label">📝 Description</label><textarea id="e-desc"></textarea></div>
+      <div class="form-group full">
+        <label class="form-label">📸 Bill Photo</label>
+        <div class="bill-upload-area" onclick="document.getElementById('e-bill').click()">
+          <input type="file" id="e-bill" accept="image/*" capture="environment" style="display:none" onchange="previewBill('e-bill','e-bill-preview')">
+          <div class="bill-upload-icon">📷</div>
+          <div class="bill-upload-label">Tap to change or add bill photo</div>
+          <img class="bill-preview" id="e-bill-preview" alt="Bill preview">
+        </div>
+        <button type="button" id="e-bill-clear" onclick="clearBill('e-bill','e-bill-preview','e-bill-clear')" class="hidden" style="margin-top:6px;background:none;border:none;color:var(--red);font-size:12px;font-weight:700;cursor:pointer">✕ Remove Photo</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="modal-btn save" id="edit-save-btn" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="contact-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔒 Edit Locked</div>
+    <div class="warn-box">You have already used your <strong>one edit chance</strong> for this expense.<br><br>Please contact <strong>Super Admin (Owner)</strong> — they can reset your edit chance or make the correction.</div>
+    <button class="modal-btn save" style="background:linear-gradient(135deg,#00C48C,#00D2D3)" onclick="closeModal('contact-modal')">✅ Got it</button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="delete-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑️ Delete Expense?</div>
+    <div class="warn-box" style="border-color:var(--red)">This action <strong>cannot be undone</strong>.</div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="modal-btn danger" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="branch-edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Branch</div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Branch Name</label><input type="text" id="be-name"></div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Admin Name</label><input type="text" id="be-admin"></div>
+    <div class="form-group" style="margin-bottom:4px"><label class="form-label">New Admin PIN (leave blank to keep current)</label><input type="text" id="be-pin" placeholder="New 4–8 digit PIN..." inputmode="numeric" maxlength="8"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('branch-edit-modal')">Cancel</button>
+      <button class="modal-btn save" id="branch-save-btn" onclick="saveBranchEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="bill-view-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📸 Bill / Receipt</div>
+    <img id="bill-view-img" src="" alt="Bill photo">
+    <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--muted)" id="bill-view-meta"></div>
+    <button class="modal-btn cancel" style="margin-top:14px;width:100%" onclick="closeModal('bill-view-modal')">Close</button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="history-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🕘 Edit History</div>
+    <div id="history-list" style="max-height:50vh;overflow-y:auto"></div>
+    <button class="modal-btn cancel" style="margin-top:14px;width:100%" onclick="closeModal('history-modal')">Close</button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="forgot-pin-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🛟 Reset Super Admin PIN</div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Recovery PIN</label><input type="text" id="forgot-recovery-pin" placeholder="Your secret recovery PIN" inputmode="numeric" maxlength="8"></div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">New Login PIN (4–8 digits)</label><input type="text" id="forgot-new-pin" placeholder="New PIN" inputmode="numeric" maxlength="8"></div>
+    <div class="form-group" style="margin-bottom:4px"><label class="form-label">Confirm New PIN</label><input type="text" id="forgot-confirm-pin" placeholder="Repeat new PIN" inputmode="numeric" maxlength="8"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('forgot-pin-modal')">Cancel</button>
+      <button class="modal-btn save" id="forgot-submit-btn" onclick="submitForgotPin()">✅ Reset PIN</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs (modular v9+, loaded via CDN as ES modules) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, writeBatch, arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBGLkgHnIjL82XdlATgMeql-Gz1CLUBdaY",
+  authDomain: "first-journey-expense-tracker.firebaseapp.com",
+  projectId: "first-journey-expense-tracker",
+  storageBucket: "first-journey-expense-tracker.firebasestorage.app",
+  messagingSenderId: "303735390168",
+  appId: "1:303735390168:web:c7be2fa92e9bb7d0fdfcad"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+/* Expose Firestore functions globally so the non-module script below can use them */
+window.__fb = {
+  db, collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, writeBatch, arrayUnion
+};
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<script>
+/* ── CONFIG ── */
+const CAT_CONFIG=[
+  {emoji:'📎',colors:['#EEF2FF','#4B7BFF']},{emoji:'⚡',colors:['#FFF8E6','#FFB800']},
+  {emoji:'🚗',colors:['#E6FFF6','#00C48C']},{emoji:'🍱',colors:['#FFF0F0','#FF4757']},
+  {emoji:'🤝',colors:['#F3EEFF','#A259FF']},{emoji:'🏠',colors:['#E6F7FF','#00D2D3']},
+  {emoji:'📦',colors:['#FFF3EE','#FF6B35']},{emoji:'✨',colors:['#FFF0F7','#FF4D8D']},
+  {emoji:'💡',colors:['#F0FFF4','#00C48C']},{emoji:'📌',colors:['#FFF9E6','#FFD23F']}
+];
+const GRADIENTS=[
+  'linear-gradient(135deg,#4B7BFF,#A259FF)','linear-gradient(135deg,#00C48C,#00D2D3)',
+  'linear-gradient(135deg,#FF6B35,#FF4D8D)','linear-gradient(135deg,#FFD23F,#FF6B35)',
+  'linear-gradient(135deg,#A259FF,#FF4D8D)','linear-gradient(135deg,#00D2D3,#4B7BFF)',
+  'linear-gradient(135deg,#FF4D8D,#FF4757)','linear-gradient(135deg,#00C48C,#4B7BFF)',
+];
+const SUPER_PIN='1234';
+const DEFAULT_BRANCHES=[
+  {id:'b1',name:'Kamla Nagar',admin:'Branch Admin KN',pin:'0000'},
+  {id:'b2',name:'Shakti Nagar',admin:'Branch Admin SN',pin:'1111'},
+];
+const DEFAULT_CATS=['Office Supplies & Stationery','Utilities','Travel & Transport','Food & Refreshments','Vendor Payments','Rent & Maintenance','Miscellaneous'];
+const EDIT_DAYS = 2;
+
+/* ── STATE (local cache, kept in sync with Firestore via onSnapshot) ── */
+let state={branches:[],categories:DEFAULT_CATS.slice(),expenses:[],allocations:[],superPin:SUPER_PIN,recoveryPin:''};
+let session={role:null,branchId:null};
+let editId=null,deleteId=null,editBranchId=null;
+let activeFilterCat='';
+let pendingBillData=null;
+let editBillData=null;
+let fb=null; // firestore handle bundle
+let metaDocRef=null;
+let unsubBranches=null, unsubExpenses=null, unsubAllocations=null, unsubMeta=null, unsubSuperPin=null;
+let firestoreReady=false;
+
+function today(){return new Date().toISOString().slice(0,10);}
+function fmt(n){const v=Math.round(Number(n)||0);if(v>=100000)return '₹'+(v/100000).toFixed(1)+'L';if(v>=1000)return '₹'+(v/1000).toFixed(1)+'K';return '₹'+v.toLocaleString('en-IN');}
+function fmtFull(n){return '₹'+Math.round(Number(n)||0).toLocaleString('en-IN');}
+function branchById(id){return state.branches.find(b=>b.id===id)||{name:'Unknown',admin:''};}
+function daysDiff(dateStr){const now=new Date();now.setHours(0,0,0,0);const d=new Date(dateStr+'T00:00:00');d.setHours(0,0,0,0);return Math.round((now-d)/(1000*60*60*24));}
+function canBranchEdit(expense){return (expense.editCount||0) < 1;}
+
+function setSyncStatus(s){
+  const el=document.getElementById('sync-status');
+  if(s==='online'){el.textContent='☁️ Synced';el.className='sync-status online';}
+  else if(s==='offline'){el.textContent='⚠️ Offline';el.className='sync-status offline';}
+  else{el.textContent='🔄 Connecting...';el.className='sync-status';}
+}
+
+/* ══════════════════════════════════════════
+   FIREBASE INIT & REAL-TIME LISTENERS
+══════════════════════════════════════════ */
+window.addEventListener('firebase-ready', async () => {
+  fb = window.__fb;
+  try {
+    await ensureSeedData();
+    attachListeners();
+    firestoreReady=true;
+    setSyncStatus('online');
+    document.getElementById('login-btn').disabled=false;
+    document.getElementById('login-hint').textContent='';
+  } catch(e){
+    console.error('Firebase init error', e);
+    setSyncStatus('offline');
+    showToast('⚠️ Could not connect to Firebase. Check internet.');
+  }
+});
+
+async function ensureSeedData(){
+  const {db,collection,getDocs,doc,setDoc,getDoc} = fb;
+  // Seed branches if collection empty
+  const branchSnap = await getDocs(collection(db,'branches'));
+  if(branchSnap.empty){
+    for(const b of DEFAULT_BRANCHES){
+      await setDoc(doc(db,'branches',b.id),{name:b.name,admin:b.admin,pin:b.pin});
+    }
+  }
+  // Seed categories in a single meta doc if missing
+  const metaRef = doc(db,'meta','categories');
+  const metaSnap = await getDoc(metaRef);
+  if(!metaSnap.exists()){
+    await setDoc(metaRef,{list:DEFAULT_CATS});
+  }
+  // Seed super admin PIN doc if missing (so it can be changed later without editing code)
+  const saRef = doc(db,'meta','superadmin');
+  const saSnap = await getDoc(saRef);
+  if(!saSnap.exists()){
+    await setDoc(saRef,{pin:SUPER_PIN,recoveryPin:''});
+  }
+}
+
+function attachListeners(){
+  const {db,collection,doc,onSnapshot,query,orderBy} = fb;
+
+  // Branches
+  unsubBranches = onSnapshot(collection(db,'branches'), snap => {
+    state.branches = snap.docs.map(d=>({id:d.id,...d.data()}));
+    populateLoginBranchSelect();
+    if(session.role) { populateAllSelects(); refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Expenses
+  unsubExpenses = onSnapshot(query(collection(db,'expenses'), orderBy('createdAt','desc')), snap => {
+    state.expenses = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(session.role){ refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Allocations
+  unsubAllocations = onSnapshot(query(collection(db,'allocations'), orderBy('createdAt','desc')), snap => {
+    state.allocations = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(session.role){ refreshActiveTab(); updateMetrics(); }
+  }, err => { console.error(err); setSyncStatus('offline'); });
+
+  // Categories (single meta doc)
+  unsubMeta = onSnapshot(doc(db,'meta','categories'), snap => {
+    if(snap.exists()){
+      state.categories = snap.data().list || DEFAULT_CATS.slice();
+      populateCatSelects();
+      if(session.role && document.getElementById('tab-manage') && !document.getElementById('tab-manage').classList.contains('hidden')) renderCategories();
+    }
+  }, err => { console.error(err); });
+
+  // Super Admin PIN (single meta doc)
+  unsubSuperPin = onSnapshot(doc(db,'meta','superadmin'), snap => {
+    if(snap.exists()){ state.superPin = snap.data().pin || SUPER_PIN; state.recoveryPin = snap.data().recoveryPin || ''; }
+  }, err => { console.error(err); });
+}
+
+function refreshActiveTab(){
+  const active = TABS.find(t=>!document.getElementById('tab-'+t).classList.contains('hidden'));
+  if(active==='log') renderLog();
+  if(active==='cash') renderCash();
+  if(active==='summary') renderSummary();
+  if(active==='manage'){ renderBranchManage(); renderRecoveryStatus(); }
+}
+
+/* ── LOGIN ── */
+let selectedRole='super';
+function selectRole(r){
+  selectedRole=r;
+  document.getElementById('role-super').classList.toggle('selected',r==='super');
+  document.getElementById('role-branch').classList.toggle('selected',r==='branch');
+  document.getElementById('branch-select-wrap').classList.toggle('hidden',r==='super');
+  document.getElementById('forgot-pin-link').classList.toggle('hidden',r!=='super');
+}
+function populateLoginBranchSelect(){
+  const sel=document.getElementById('login-branch-select');
+  sel.innerHTML='<option value="">— Select Your Branch —</option>'+state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+}
+function doLogin(){
+  if(!firestoreReady){showToast('⏳ Still connecting, please wait...');return;}
+  const pin=document.getElementById('login-pin').value.trim();
+  const err=document.getElementById('login-err');
+  err.textContent='';
+  if(selectedRole==='super'){
+    if(pin===state.superPin){session={role:'super',branchId:null};startApp();}
+    else err.textContent='❌ Incorrect Super Admin PIN';
+  } else {
+    const bId=document.getElementById('login-branch-select').value;
+    if(!bId){err.textContent='⚠️ Please select your branch';return;}
+    const branch=state.branches.find(b=>b.id===bId);
+    if(!branch){err.textContent='⚠️ Branch not found';return;}
+    if(pin===branch.pin){session={role:'branch',branchId:bId};startApp();}
+    else err.textContent='❌ Incorrect Branch Admin PIN';
+  }
+}
+function doLogout(){
+  session={role:null,branchId:null};
+  document.getElementById('login-pin').value='';
+  document.getElementById('login-err').textContent='';
+  document.getElementById('app-screen').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  populateLoginBranchSelect();
+}
+
+/* ── APP START ── */
+function startApp(){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
+  const isSA=session.role==='super';
+  document.getElementById('app-title').textContent=isSA?'👑 Super Admin Dashboard':'🏪 '+branchById(session.branchId).name;
+  document.getElementById('app-sub').textContent=isSA?'All Branches — Live Sync':branchById(session.branchId).admin;
+  document.getElementById('role-badge').textContent=isSA?'🔓 Full Access':'🔒 Branch Access';
+  document.getElementById('manage-nav-btn').classList.toggle('hidden',!isSA);
+  document.getElementById('alloc-section').classList.toggle('hidden',!isSA);
+  document.getElementById('alloc-btn').textContent=isSA?'✅ Allocate Cash':'✅ Add Fund';
+  document.getElementById('f-branch-wrap').classList.toggle('hidden',!isSA);
+  document.getElementById('log-branch-filter-wrap').classList.toggle('hidden',!isSA);
+  populateAllSelects();
+  showTab('add',document.querySelector('.nav-btn'));
+  updateMetrics();
+}
+
+function updateMetrics(){
+  const isSA=session.role==='super';
+  let totalAlloc=0,totalSpent=0;
+  if(isSA){
+    state.allocations.forEach(a=>totalAlloc+=a.amount);
+    state.expenses.forEach(e=>totalSpent+=e.amount);
+  } else {
+    state.allocations.filter(a=>a.branchId===session.branchId).forEach(a=>totalAlloc+=a.amount);
+    state.expenses.filter(e=>e.branchId===session.branchId).forEach(e=>totalSpent+=e.amount);
+  }
+  const bal=totalAlloc-totalSpent;
+  document.getElementById('m-allocated').textContent=fmt(totalAlloc);
+  document.getElementById('m-spent').textContent=fmt(totalSpent);
+  document.getElementById('m-balance').textContent=fmt(Math.abs(bal));
+  const sub=document.getElementById('m-balance-sub');
+  if(bal<0){sub.textContent='⚠️ Over Budget';sub.style.color='var(--red)';}
+  else if(bal<1000){sub.textContent='⚠️ Low';sub.style.color='var(--orange)';}
+  else{sub.textContent='✅ OK';sub.style.color='var(--green)';}
+}
+
+/* ── TABS ── */
+const TABS=['add','log','cash','summary','manage'];
+function showTab(name,btn){
+  TABS.forEach(t=>document.getElementById('tab-'+t).classList.add('hidden'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(name==='log')renderLog();
+  if(name==='cash')renderCash();
+  if(name==='summary')renderSummary();
+  if(name==='manage'){renderBranchManage();renderCategories();renderRecoveryStatus();}
+}
+
+/* ── SELECTS ── */
+function populateAllSelects(){
+  const isSA=session.role==='super';
+  ['alloc-branch','f-branch','log-branch-filter'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const isLog=id==='log-branch-filter';
+    const prevVal = el.value;
+    el.innerHTML=(isLog?'<option value="">All Branches</option>':'')+
+      state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+    if(!isLog&&!isSA)el.value=session.branchId;
+    else if(prevVal) el.value=prevVal;
+  });
+  populateCatSelects();
+}
+function populateCatSelects(){
+  ['f-cat','e-cat'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const prev=el.value;
+    el.innerHTML=state.categories.map((c,i)=>`<option value="${i}">${CAT_CONFIG[i%CAT_CONFIG.length].emoji} ${c}</option>`).join('');
+    if(prev)el.value=prev;
+  });
+  const row=document.getElementById('cat-filter-row');if(!row)return;
+  row.innerHTML=`<div class="filter-pill ${activeFilterCat===''?'active':''}" onclick="setFilter(this,'')" data-cat="">All</div>`
+    +state.categories.map((c,i)=>`<div class="filter-pill ${activeFilterCat==i?'active':''}" onclick="setFilter(this,'${i}')" data-cat="${i}">${CAT_CONFIG[i%CAT_CONFIG.length].emoji} ${c.split(' ')[0]}</div>`).join('');
+}
+
+/* ── BILL PHOTO HELPERS ── */
+function previewBill(inputId,previewId){
+  const file=document.getElementById(inputId).files[0];
+  if(!file)return;
+  if(file.size > 900*1024){ showToast('⚠️ Photo too large (max ~900KB). Try a smaller image.'); return; }
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=document.getElementById(previewId);
+    img.src=ev.target.result;img.classList.add('show');
+    const clearId=inputId.replace('bill','bill-clear');
+    document.getElementById(clearId).classList.remove('hidden');
+    if(inputId==='f-bill') pendingBillData=ev.target.result;
+    else editBillData=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function clearBill(inputId,previewId,clearBtnId){
+  document.getElementById(inputId).value='';
+  const img=document.getElementById(previewId);
+  img.src='';img.classList.remove('show');
+  document.getElementById(clearBtnId).classList.add('hidden');
+  if(inputId==='f-bill') pendingBillData=null;
+  else editBillData='';
+}
+function viewBill(expId){
+  const e=state.expenses.find(x=>x.id===expId);
+  if(!e||!e.bill){showToast('⚠️ No bill photo attached');return;}
+  document.getElementById('bill-view-img').src=e.bill;
+  document.getElementById('bill-view-meta').textContent='📅 '+e.date+' | 👤 '+e.staff+' | '+fmtFull(e.amount);
+  document.getElementById('bill-view-modal').classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════
+   FIRESTORE WRITE OPERATIONS
+══════════════════════════════════════════ */
+async function allocateCash(){
+  const isSA=session.role==='super';
+  const branchId=isSA?document.getElementById('alloc-branch').value:session.branchId;
+  const amount=parseFloat(document.getElementById('alloc-amount').value);
+  const source=document.getElementById('alloc-source').value;
+  const note=document.getElementById('alloc-note').value.trim();
+  if(!branchId){showToast('⚠️ Select a branch');return;}
+  if(!amount||isNaN(amount)||amount<=0){showToast('⚠️ Enter a valid amount');return;}
+  if(!source){showToast('⚠️ Source of Funds is required');return;}
+  const btn=document.getElementById('alloc-btn'); btn.disabled=true; btn.textContent='Saving...';
+  const btnLabel=isSA?'✅ Allocate Cash':'✅ Add Fund';
+  try{
+    const {db,collection,addDoc} = fb;
+    await addDoc(collection(db,'allocations'),{
+      branchId,amount,source,note,date:today(),
+      by:isSA?'Super Admin':branchById(branchId).admin,
+      addedByRole:isSA?'super':'branch',
+      createdAt:Date.now()
+    });
+    document.getElementById('alloc-amount').value='';
+    document.getElementById('alloc-note').value='';
+    document.getElementById('alloc-source').value='';
+    showToast(isSA?'✅ Cash allocated to '+branchById(branchId).name+'!':'✅ Fund added!');
+  }catch(e){console.error(e);showToast('⚠️ Failed to save. Check connection.');}
+  btn.disabled=false; btn.textContent=btnLabel;
+}
+
+async function addExpense(){
+  const isSA=session.role==='super';
+  const date=document.getElementById('f-date').value||today();
+  const amount=parseFloat(document.getElementById('f-amount').value);
+  const catIdx=parseInt(document.getElementById('f-cat').value);
+  const staff=document.getElementById('f-staff').value.trim();
+  const desc=document.getElementById('f-desc').value.trim();
+  const branchId=isSA?document.getElementById('f-branch').value:session.branchId;
+  if(!amount||isNaN(amount)){showToast('⚠️ Enter a valid amount');return;}
+  if(!staff){showToast('⚠️ Enter staff / person name');return;}
+  if(!branchId){showToast('⚠️ Select a branch');return;}
+  const alloc=state.allocations.filter(a=>a.branchId===branchId).reduce((s,a)=>s+a.amount,0);
+  const spent=state.expenses.filter(e=>e.branchId===branchId).reduce((s,e)=>s+e.amount,0);
+  const bal=alloc-spent;
+  if(amount>bal){if(!confirm(`⚠️ Amount (${fmtFull(amount)}) exceeds current balance (${fmtFull(bal)}) for ${branchById(branchId).name}.\n\nProceed anyway?`))return;}
+  const btn=document.getElementById('add-exp-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,collection,addDoc} = fb;
+    const expObj={date,amount,catIdx,staff,desc,branchId,addedBy:isSA?'Super Admin':branchById(session.branchId).admin,createdAt:Date.now(),editCount:0};
+    if(pendingBillData) expObj.bill=pendingBillData;
+    await addDoc(collection(db,'expenses'),expObj);
+    document.getElementById('f-amount').value='';
+    document.getElementById('f-desc').value='';
+    clearBill('f-bill','f-bill-preview','f-bill-clear');
+    showToast('✅ Expense added!');
+  }catch(e){console.error(e);showToast('⚠️ Failed to save. Check connection.');}
+  btn.disabled=false; btn.textContent='✅ Add Expense';
+}
+
+/* ── LOG ── */
+function setFilter(el,val){
+  activeFilterCat=val;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');renderLog();
+}
+function renderLog(){
+  const isSA=session.role==='super';
+  const fd=document.getElementById('filter-date').value;
+  const fs=document.getElementById('filter-staff').value.toLowerCase();
+  const fb_=isSA?document.getElementById('log-branch-filter').value:session.branchId;
+  let list=state.expenses.filter(e=>{
+    if(fb_&&e.branchId!==fb_)return false;
+    if(fd&&e.date!==fd)return false;
+    if(activeFilterCat!==''&&e.catIdx!==parseInt(activeFilterCat))return false;
+    if(fs&&!(e.staff.toLowerCase().includes(fs)||(e.desc||'').toLowerCase().includes(fs)))return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+  const total=list.reduce((s,e)=>s+e.amount,0);
+  const bar=document.getElementById('daily-total-bar');
+  if(fd&&list.length){bar.classList.remove('hidden');document.getElementById('daily-total-val').textContent=fmtFull(total);}
+  else bar.classList.add('hidden');
+  const el=document.getElementById('expense-list');
+  if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><p>No expenses found</p><span>Adjust filters or add a new expense</span></div>`;return;}
+  el.innerHTML=list.map(e=>{
+    const ci=(typeof e.catIdx==='number'&&e.catIdx<state.categories.length)?e.catIdx:0;
+    const cfg=CAT_CONFIG[ci%CAT_CONFIG.length];
+    const catName=state.categories[ci]||'Unknown';
+    const grad=GRADIENTS[ci%GRADIENTS.length];
+    const bName=branchById(e.branchId).name;
+    const daysAgo=daysDiff(e.date);
+    const branchCanEdit=canBranchEdit(e);
+    let actions='';
+    if(isSA){
+      actions=`<button class="icon-btn edit" onclick="openEdit('${e.id}')" title="Edit">✏️</button>
+               <button class="icon-btn del" onclick="openDelete('${e.id}')" title="Delete">🗑️</button>`;
+      if((e.editCount||0)>0) actions=`<button class="icon-btn" onclick="resetEditChance('${e.id}')" title="Reset Edit Chance" style="background:#FFF3EE;color:var(--orange)">🔓</button>`+actions;
+    } else if(branchCanEdit){
+      actions=`<button class="icon-btn edit" onclick="openEdit('${e.id}')" title="Edit">✏️</button>`;
+    } else {
+      actions=`<button class="icon-btn contact" onclick="openContactModal()" title="Contact Super Admin">🔒 SA</button>`;
+    }
+    if(e.history&&e.history.length) actions=`<button class="icon-btn" onclick="openHistory('${e.id}')" title="Edit History" style="background:#F3EEFF;color:var(--purple)">🕘</button>`+actions;
+    if(e.bill) actions=`<button class="icon-btn view-bill" onclick="viewBill('${e.id}')" title="View Bill">📸</button>`+actions;
+    const ageLabel=daysAgo===0?'Today':daysAgo===1?'Yesterday':daysAgo+' days ago';
+    return `<div class="expense-card">
+      <div class="exp-icon" style="background:${cfg.colors[0]};color:${cfg.colors[1]}">${cfg.emoji}</div>
+      <div class="exp-body">
+        <div class="exp-top"><span class="exp-cat">${catName}</span><span class="exp-amount" style="background:${grad};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${fmtFull(e.amount)}</span></div>
+        <div class="exp-meta">
+          <span class="exp-badge">👤 ${e.staff}</span>
+          ${isSA?`<span class="exp-badge branch">🏢 ${bName}</span>`:''}
+          <span class="exp-badge age">${ageLabel}</span>
+          ${e.bill?`<span class="exp-badge" style="background:#E6FFF6;color:var(--green)">📸 Bill</span>`:''}
+          ${(e.editCount||0)>0?`<span class="exp-badge" style="background:#F3EEFF;color:var(--purple)">✏️ Edited</span>`:''}
+        </div>
+        ${e.desc?`<div class="exp-desc">💬 ${e.desc}</div>`:''}
+      </div>
+      <div class="exp-actions">${actions}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── PETTY CASH TAB ── */
+function renderCash(){
+  const isSA=session.role==='super';
+  const branches=isSA?state.branches:state.branches.filter(b=>b.id===session.branchId);
+  const el=document.getElementById('cash-content');
+  if(!branches.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🏦</div><p>No branches yet</p></div>';return;}
+  let html='';
+  branches.forEach(b=>{
+    const allocs=state.allocations.filter(a=>a.branchId===b.id);
+    const totalAlloc=allocs.reduce((s,a)=>s+a.amount,0);
+    const totalSpent=state.expenses.filter(e=>e.branchId===b.id).reduce((s,e)=>s+e.amount,0);
+    const bal=totalAlloc-totalSpent;
+    const pct=totalAlloc>0?Math.max(0,Math.min(100,Math.round((bal/totalAlloc)*100))):0;
+    const status=pct>30?'ok':pct>0?'low':'empty';
+    const barColor=pct>30?'#00C48C':pct>0?'#FFB800':'#FF4757';
+    html+=`<div class="cash-card">
+      <div class="cash-card-top"><div class="cash-branch-name">🏢 ${b.name}</div><div class="cash-badge ${status}">${status==='ok'?'✅ OK':status==='low'?'⚠️ Low':'🔴 Empty'}</div></div>
+      <div class="cash-bar-wrap"><div class="cash-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      <div class="cash-stats">
+        <div class="cash-stat"><div class="cash-stat-val">${fmt(totalAlloc)}</div><div class="cash-stat-label">Allocated</div></div>
+        <div class="cash-stat"><div class="cash-stat-val" style="color:var(--red)">${fmt(totalSpent)}</div><div class="cash-stat-label">Spent</div></div>
+        <div class="cash-stat"><div class="cash-stat-val" style="color:${bal>=0?'var(--green)':'var(--red)'}">${fmt(Math.abs(bal))}${bal<0?' OD':''}</div><div class="cash-stat-label">Balance</div></div>
+      </div>`;
+    if(allocs.length){
+      html+=`<div class="cash-source"><strong>Recent Allocations:</strong><br>`;
+      allocs.slice(0,3).forEach(a=>{html+=`• ${a.date}: ${fmtFull(a.amount)} — <em>${a.source}</em> (by ${a.by||'—'})${a.note?' — '+a.note:''}<br>`;});
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+  el.innerHTML=html;
+}
+
+/* ── REPORTS ── */
+let repPreset='month';
+let repCatFilter='';
+function todayISO(){return today();}
+function startOfWeekISO(){
+  const d=new Date();const day=d.getDay();const diff=(day===0?6:day-1);
+  d.setDate(d.getDate()-diff);return d.toISOString().slice(0,10);
+}
+function startOfMonthISO(){const d=new Date();return d.toISOString().slice(0,7)+'-01';}
+function getReportRange(){
+  if(repPreset==='today') return {from:todayISO(),to:todayISO()};
+  if(repPreset==='week') return {from:startOfWeekISO(),to:todayISO()};
+  if(repPreset==='month') return {from:startOfMonthISO(),to:todayISO()};
+  if(repPreset==='all') return {from:'0000-01-01',to:'9999-12-31'};
+  const f=document.getElementById('rep-from').value||'0000-01-01';
+  const t=document.getElementById('rep-to').value||'9999-12-31';
+  return {from:f,to:t};
+}
+function setRepPreset(p,el){
+  repPreset=p;
+  document.querySelectorAll('#rep-preset-row .filter-pill').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('rep-custom-row').classList.toggle('hidden',p!=='custom');
+  renderSummary();
+}
+function populateRepBranch(){
+  const isSA=session.role==='super';
+  document.getElementById('rep-branch-wrap').classList.toggle('hidden',!isSA);
+  if(!isSA)return;
+  const sel=document.getElementById('rep-branch');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">All Branches</option>'+state.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  if(prev)sel.value=prev;
+}
+function getReportBranchId(){
+  const isSA=session.role==='super';
+  if(!isSA) return session.branchId;
+  const el=document.getElementById('rep-branch');
+  return el?el.value:'';
+}
+function getReportExpenses(){
+  const {from,to}=getReportRange();
+  const bId=getReportBranchId();
+  return state.expenses.filter(e=>{
+    if(e.date<from||e.date>to)return false;
+    if(bId&&e.branchId!==bId)return false;
+    if(repCatFilter!==''&&e.catIdx!==parseInt(repCatFilter))return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+}
+function getReportAllocations(){
+  const {from,to}=getReportRange();
+  const bId=getReportBranchId();
+  return state.allocations.filter(a=>{
+    if(a.date<from||a.date>to)return false;
+    if(bId&&a.branchId!==bId)return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+}
+function renderRepCatFilterRow(){
+  const row=document.getElementById('rep-cat-row');if(!row)return;
+  row.innerHTML=`<div class="filter-pill ${repCatFilter===''?'active':''}" onclick="setRepCatFilter('')">All Items</div>`
+    +state.categories.map((c,i)=>`<div class="filter-pill ${repCatFilter==i?'active':''}" onclick="setRepCatFilter('${i}')">${CAT_CONFIG[i%CAT_CONFIG.length].emoji} ${c.split(' ')[0]}</div>`).join('');
+}
+function setRepCatFilter(v){repCatFilter=v;renderSummary();}
+function renderSummary(){
+  const isSA=session.role==='super';
+  populateRepBranch();
+  renderRepCatFilterRow();
+  const {from,to}=getReportRange();
+  const bId=getReportBranchId();
+  const list=getReportExpenses();
+  const grandTotal=list.reduce((s,e)=>s+e.amount,0);
+  const el=document.getElementById('summary-content');
+  let html='';
+  const rangeLabel=(repPreset==='all')?'All Time':(from+' → '+to);
+  const scopeLabel=bId?branchById(bId).name:'All Branches';
+  html+=`<div class="report-hero"><div class="report-hero-label">${scopeLabel} — ${rangeLabel}</div><div class="report-hero-val">${fmtFull(grandTotal)}</div><div class="report-hero-sub">${list.length} expenses</div></div>`;
+
+  if(isSA&&!bId){
+    state.branches.forEach(b=>{
+      const bExp=list.filter(e=>e.branchId===b.id);
+      const bTotal=bExp.reduce((s,e)=>s+e.amount,0);
+      const bAlloc=state.allocations.filter(a=>a.branchId===b.id).reduce((s,a)=>s+a.amount,0);
+      const bBal=bAlloc-state.expenses.filter(e=>e.branchId===b.id).reduce((s,e)=>s+e.amount,0);
+      html+=`<div class="branch-report-card">
+        <div class="brc-head"><span class="brc-name">🏢 ${b.name}</span><span class="brc-total">${fmtFull(bTotal)}</span></div>
+        <div class="brc-grid">
+          <div class="brc-stat"><div class="brc-stat-val">${bExp.length}</div><div class="brc-stat-label">Expenses</div></div>
+          <div class="brc-stat"><div class="brc-stat-val">${fmt(bAlloc)}</div><div class="brc-stat-label">Allocated (All-time)</div></div>
+          <div class="brc-stat"><div class="brc-stat-val" style="color:${bBal>=0?'var(--green)':'var(--red)'}">${fmt(Math.abs(bBal))}</div><div class="brc-stat-label">Balance</div></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  const catTotals={};list.forEach(e=>{catTotals[e.catIdx]=(catTotals[e.catIdx]||0)+e.amount;});
+  const sorted=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  if(sorted.length){
+    html+=`<div class="section-head-sm">Item-wise (Category) Breakdown</div>`;
+    const maxAmt=sorted[0][1];
+    sorted.forEach(([ci,amt])=>{
+      const cfg=CAT_CONFIG[parseInt(ci)%CAT_CONFIG.length];
+      const catName=state.categories[parseInt(ci)]||'Unknown';
+      const pct=Math.round((amt/maxAmt)*100);
+      const grad=GRADIENTS[parseInt(ci)%GRADIENTS.length];
+      html+=`<div class="cat-stat-card" onclick="setRepCatFilter('${ci}')" style="cursor:pointer">
+        <div class="cat-stat-top"><div class="cat-stat-icon" style="background:${cfg.colors[0]};color:${cfg.colors[1]}">${cfg.emoji}</div>
+        <span class="cat-stat-name">${catName}</span><span class="cat-stat-amount" style="background:${grad};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${fmtFull(amt)}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${grad}"></div></div>
+      </div>`;
+    });
+  } else {
+    html+=`<div class="empty-state"><div class="empty-icon">📭</div><p>No expenses in this range</p></div>`;
+  }
+
+  html+=`<div class="section-head-sm">Detail (${list.length})</div>`;
+  if(list.length){
+    html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="text-align:left;color:var(--muted)"><th style="padding:6px 4px">Date</th>${isSA?'<th style="padding:6px 4px">Branch</th>':''}<th style="padding:6px 4px">Category</th><th style="padding:6px 4px">Staff</th><th style="padding:6px 4px;text-align:right">Amount</th></tr>`;
+    list.forEach(e=>{
+      html+=`<tr style="border-top:1px solid var(--border)"><td style="padding:6px 4px">${e.date}</td>${isSA?`<td style="padding:6px 4px">${branchById(e.branchId).name}</td>`:''}<td style="padding:6px 4px">${state.categories[e.catIdx]||'Unknown'}</td><td style="padding:6px 4px">${e.staff}</td><td style="padding:6px 4px;text-align:right;font-weight:700">${fmtFull(e.amount)}</td></tr>`;
+    });
+    html+=`</table></div>`;
+  }
+  el.innerHTML=html;
+  renderRepAllocations();
+}
+function renderRepAllocations(){
+  const isSA=session.role==='super';
+  const allocs=getReportAllocations();
+  const el=document.getElementById('rep-alloc-content');if(!el)return;
+  if(!allocs.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">💵</div><p>No cash allocations in this range</p></div>';return;}
+  const total=allocs.reduce((s,a)=>s+a.amount,0);
+  let html=`<div class="info-box" style="margin-bottom:10px"><strong>${fmtFull(total)}</strong> added across ${allocs.length} allocation(s) in this range.</div>`;
+  html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
+    <tr style="text-align:left;color:var(--muted)"><th style="padding:6px 4px">Date</th>${isSA?'<th style="padding:6px 4px">Branch</th>':''}<th style="padding:6px 4px">Amount</th><th style="padding:6px 4px">Source</th><th style="padding:6px 4px">Added By</th><th style="padding:6px 4px">Note</th></tr>`;
+  allocs.forEach(a=>{
+    html+=`<tr style="border-top:1px solid var(--border)"><td style="padding:6px 4px">${a.date}</td>${isSA?`<td style="padding:6px 4px">${branchById(a.branchId).name}</td>`:''}<td style="padding:6px 4px;font-weight:700">${fmtFull(a.amount)}</td><td style="padding:6px 4px">${a.source||''}</td><td style="padding:6px 4px">${a.by||''}</td><td style="padding:6px 4px">${a.note||''}</td></tr>`;
+  });
+  html+='</table></div>';
+  el.innerHTML=html;
+}
+
+/* ── MANAGE: BRANCHES ── */
+function renderBranchManage(){
+  const el=document.getElementById('branch-manage-list');
+  if(!el) return;
+  if(!state.branches.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No branches yet.</div>';return;}
+  el.innerHTML=state.branches.map(b=>{
+    const expCount=state.expenses.filter(e=>e.branchId===b.id).length;
+    return `<div class="branch-manage-row">
+      <div class="bmr-icon">🏢</div>
+      <div class="bmr-info"><div class="bmr-name">${b.name}</div><div class="bmr-admin">👤 ${b.admin} &nbsp;|&nbsp; 📦 ${expCount} expenses</div></div>
+      <button class="icon-btn edit" onclick="openBranchEdit('${b.id}')" style="width:34px;height:34px" title="Edit Branch">✏️</button>
+      ${state.branches.length>1?`<button class="icon-btn del" onclick="deleteBranch('${b.id}')" style="width:34px;height:34px" title="Delete Branch">🗑️</button>`:''}
+    </div>`;
+  }).join('');
+}
+async function addBranch(){
+  const name=document.getElementById('new-branch-name').value.trim();
+  const admin=document.getElementById('new-branch-admin').value.trim();
+  const pin=document.getElementById('new-branch-pin').value.trim();
+  if(!name){showToast('⚠️ Enter branch name');return;}
+  if(!admin){showToast('⚠️ Enter admin name');return;}
+  if(!pin||pin.length<4){showToast('⚠️ PIN must be 4–8 digits');return;}
+  try{
+    const {db,collection,addDoc} = fb;
+    await addDoc(collection(db,'branches'),{name,admin,pin});
+    document.getElementById('new-branch-name').value='';
+    document.getElementById('new-branch-admin').value='';
+    document.getElementById('new-branch-pin').value='';
+    showToast('✅ Branch added: '+name);
+  }catch(e){console.error(e);showToast('⚠️ Failed to add branch');}
+}
+function openBranchEdit(id){
+  editBranchId=id;
+  const b=state.branches.find(x=>x.id===id);
+  document.getElementById('be-name').value=b.name;
+  document.getElementById('be-admin').value=b.admin;
+  document.getElementById('be-pin').value='';
+  document.getElementById('branch-edit-modal').classList.remove('hidden');
+}
+async function saveBranchEdit(){
+  const b=state.branches.find(x=>x.id===editBranchId);if(!b)return;
+  const name=document.getElementById('be-name').value.trim();
+  const admin=document.getElementById('be-admin').value.trim();
+  const pin=document.getElementById('be-pin').value.trim();
+  if(!name||!admin){showToast('⚠️ Name and admin name required');return;}
+  if(pin&&pin.length<4){showToast('⚠️ New PIN must be 4–8 digits');return;}
+  const btn=document.getElementById('branch-save-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,doc,updateDoc} = fb;
+    const updates={name,admin};
+    if(pin) updates.pin=pin;
+    await updateDoc(doc(db,'branches',editBranchId),updates);
+    closeModal('branch-edit-modal');
+    showToast('✅ Branch updated!'+(pin?' PIN changed.':''));
+  }catch(e){console.error(e);showToast('⚠️ Failed to update branch');}
+  btn.disabled=false; btn.textContent='Save Changes';
+}
+async function deleteBranch(id){
+  const b=state.branches.find(x=>x.id===id);
+  const expCount=state.expenses.filter(e=>e.branchId===id).length;
+  if(!confirm(`Delete branch "${b.name}"?\nThis will also delete ${expCount} expense(s) and all allocations.`))return;
+  try{
+    const {db,doc,deleteDoc,collection,getDocs,query,writeBatch} = fb;
+    const batch = writeBatch(db);
+    batch.delete(doc(db,'branches',id));
+    const expSnap = await getDocs(collection(db,'expenses'));
+    expSnap.forEach(d=>{ if(d.data().branchId===id) batch.delete(d.ref); });
+    const allocSnap = await getDocs(collection(db,'allocations'));
+    allocSnap.forEach(d=>{ if(d.data().branchId===id) batch.delete(d.ref); });
+    await batch.commit();
+    showToast('🗑️ Branch deleted');
+  }catch(e){console.error(e);showToast('⚠️ Failed to delete branch');}
+}
+
+/* ── MANAGE: CATEGORIES (Super Admin only) ── */
+function renderCategories(){
+  const el=document.getElementById('cat-manage-list');
+  if(!el) return;
+  el.innerHTML=state.categories.map((c,i)=>{
+    const cfg=CAT_CONFIG[i%CAT_CONFIG.length];
+    const count=state.expenses.filter(e=>e.catIdx===i).length;
+    return `<div class="cat-manage-card">
+      <div class="cat-color-dot" style="background:${cfg.colors[0]};color:${cfg.colors[1]}">${cfg.emoji}</div>
+      <div style="flex:1"><div class="cat-name-text" id="cname-${i}">${c}</div><div class="cat-count">${count} expense${count!==1?'s':''}</div></div>
+      <button class="icon-btn edit" onclick="editCat(${i})" style="width:34px;height:34px">✏️</button>
+      ${state.categories.length>1?`<button class="icon-btn del" onclick="deleteCat(${i})" style="width:34px;height:34px">🗑️</button>`:''}
+    </div>`;
+  }).join('');
+}
+async function saveCategories(){
+  const {db,doc,setDoc} = fb;
+  await setDoc(doc(db,'meta','categories'),{list:state.categories});
+}
+function editCat(i){
+  const div=document.getElementById('cname-'+i);const old=state.categories[i];
+  const inp=document.createElement('input');inp.value=old;
+  inp.style.cssText='width:100%;font-size:13px;font-weight:600;padding:6px 10px;border:1.5px solid #4B7BFF;border-radius:8px;background:#fff;font-family:inherit';
+  div.parentNode.replaceChild(inp,div);inp.focus();inp.select();
+  async function done(ev){
+    if(ev.type==='keydown'&&ev.key!=='Enter'&&ev.key!=='Escape')return;
+    state.categories[i]=(ev.key==='Escape'?old:inp.value.trim())||old;
+    await saveCategories();
+    renderCategories();populateCatSelects();showToast('✅ Category updated!');
+  }
+  inp.addEventListener('blur',done);inp.addEventListener('keydown',done);
+}
+async function deleteCat(i){
+  if(!confirm('Delete "'+state.categories[i]+'"?\nExpenses in this category will show as Unknown.'))return;
+  state.categories.splice(i,1);
+  await saveCategories();
+  renderCategories();populateCatSelects();showToast('🗑️ Category deleted');
+}
+async function addCategory(){
+  const inp=document.getElementById('new-cat-input');const name=inp.value.trim();
+  if(!name){showToast('⚠️ Enter a category name');return;}
+  state.categories.push(name);
+  await saveCategories();
+  inp.value='';
+  renderCategories();populateCatSelects();showToast('✅ Category added!');
+}
+
+/* ── MANAGE: SUPER ADMIN PIN ── */
+async function changeSuperPin(){
+  const cur=document.getElementById('sa-current-pin').value.trim();
+  const np=document.getElementById('sa-new-pin').value.trim();
+  const cp=document.getElementById('sa-confirm-pin').value.trim();
+  if(cur!==state.superPin){showToast('❌ Current PIN is incorrect');return;}
+  if(!np||np.length<4){showToast('⚠️ New PIN must be 4–8 digits');return;}
+  if(np!==cp){showToast('⚠️ New PIN and Confirm PIN do not match');return;}
+  if(np===cur){showToast('⚠️ New PIN must be different from current PIN');return;}
+  const btn=document.getElementById('sa-pin-btn'); btn.disabled=true; btn.textContent='Updating...';
+  try{
+    const {db,doc,setDoc} = fb;
+    await setDoc(doc(db,'meta','superadmin'),{pin:np},{merge:true});
+    document.getElementById('sa-current-pin').value='';
+    document.getElementById('sa-new-pin').value='';
+    document.getElementById('sa-confirm-pin').value='';
+    showToast('✅ Super Admin PIN updated!');
+  }catch(e){console.error(e);showToast('⚠️ Failed to update PIN');}
+  btn.disabled=false; btn.textContent='🔐 Update PIN';
+}
+function renderRecoveryStatus(){
+  const el=document.getElementById('recovery-pin-status');if(!el)return;
+  el.innerHTML=state.recoveryPin
+    ? '<span style="color:var(--green);font-weight:700">✅ Recovery PIN is set</span>'
+    : '<span style="color:var(--red);font-weight:700">⚠️ Recovery PIN NOT set — set it now, or you cannot recover a forgotten PIN</span>';
+}
+async function saveRecoveryPin(){
+  const cur=document.getElementById('sa-current-pin-2').value.trim();
+  const rp=document.getElementById('sa-recovery-pin').value.trim();
+  const rcp=document.getElementById('sa-recovery-confirm').value.trim();
+  if(cur!==state.superPin){showToast('❌ Current PIN is incorrect');return;}
+  if(!rp||rp.length<4){showToast('⚠️ Recovery PIN must be 4–8 digits');return;}
+  if(rp!==rcp){showToast('⚠️ Recovery PIN and Confirm do not match');return;}
+  if(rp===state.superPin){showToast('⚠️ Recovery PIN must be different from your login PIN');return;}
+  const btn=document.getElementById('sa-recovery-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,doc,setDoc} = fb;
+    await setDoc(doc(db,'meta','superadmin'),{recoveryPin:rp},{merge:true});
+    document.getElementById('sa-current-pin-2').value='';
+    document.getElementById('sa-recovery-pin').value='';
+    document.getElementById('sa-recovery-confirm').value='';
+    showToast('✅ Recovery PIN saved! Keep it safe & secret.');
+  }catch(e){console.error(e);showToast('⚠️ Failed to save Recovery PIN');}
+  btn.disabled=false; btn.textContent='🛟 Save Recovery PIN';
+}
+
+/* ── FORGOT PIN (RECOVERY) FLOW — LOGIN SCREEN ── */
+function openForgotPin(){
+  if(!state.recoveryPin){
+    alert('⚠️ Recovery PIN was never set. Please ask whoever has direct Firebase Console access to reset it manually.');
+    return;
+  }
+  document.getElementById('forgot-recovery-pin').value='';
+  document.getElementById('forgot-new-pin').value='';
+  document.getElementById('forgot-confirm-pin').value='';
+  document.getElementById('forgot-pin-modal').classList.remove('hidden');
+}
+async function submitForgotPin(){
+  const rp=document.getElementById('forgot-recovery-pin').value.trim();
+  const np=document.getElementById('forgot-new-pin').value.trim();
+  const cp=document.getElementById('forgot-confirm-pin').value.trim();
+  if(rp!==state.recoveryPin){showToast('❌ Recovery PIN is incorrect');return;}
+  if(!np||np.length<4){showToast('⚠️ New PIN must be 4–8 digits');return;}
+  if(np!==cp){showToast('⚠️ New PIN and Confirm PIN do not match');return;}
+  const btn=document.getElementById('forgot-submit-btn'); btn.disabled=true; btn.textContent='Updating...';
+  try{
+    const {db,doc,setDoc} = fb;
+    await setDoc(doc(db,'meta','superadmin'),{pin:np},{merge:true});
+    closeModal('forgot-pin-modal');
+    showToast('✅ PIN reset! Please login with your new PIN.');
+  }catch(e){console.error(e);showToast('⚠️ Failed to reset PIN');}
+  btn.disabled=false; btn.textContent='✅ Reset PIN';
+}
+
+/* ── EDIT / DELETE ── */
+function openEdit(id){
+  const isSA=session.role==='super';
+  const e=state.expenses.find(x=>x.id===id);if(!e)return;
+  if(!isSA&&!canBranchEdit(e)){openContactModal();return;}
+  editId=id;editBillData=null;
+  populateCatSelects();
+  document.getElementById('e-date').value=e.date;
+  document.getElementById('e-amount').value=e.amount;
+  document.getElementById('e-cat').value=e.catIdx;
+  document.getElementById('e-staff').value=e.staff;
+  document.getElementById('e-desc').value=e.desc||'';
+  const img=document.getElementById('e-bill-preview');
+  const clrBtn=document.getElementById('e-bill-clear');
+  if(e.bill){img.src=e.bill;img.classList.add('show');clrBtn.classList.remove('hidden');}
+  else{img.src='';img.classList.remove('show');clrBtn.classList.add('hidden');}
+  document.getElementById('e-bill').value='';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+async function saveEdit(){
+  const e=state.expenses.find(x=>x.id===editId);if(!e)return;
+  const isSA=session.role==='super';
+  const btn=document.getElementById('edit-save-btn'); btn.disabled=true; btn.textContent='Saving...';
+  try{
+    const {db,doc,updateDoc,arrayUnion} = fb;
+    const prevSnapshot={
+      date:e.date, amount:e.amount, catIdx:e.catIdx, staff:e.staff, desc:e.desc||'',
+      editedAt:Date.now(), editedBy:isSA?'Super Admin':branchById(e.branchId).admin
+    };
+    const updates={
+      date:document.getElementById('e-date').value,
+      amount:parseFloat(document.getElementById('e-amount').value)||0,
+      catIdx:parseInt(document.getElementById('e-cat').value),
+      staff:document.getElementById('e-staff').value.trim(),
+      desc:document.getElementById('e-desc').value.trim(),
+      history:arrayUnion(prevSnapshot)
+    };
+    if(!isSA) updates.editCount=(e.editCount||0)+1;
+    if(editBillData===null){/* no change */}
+    else if(editBillData===''){updates.bill='';}
+    else{updates.bill=editBillData;}
+    await updateDoc(doc(db,'expenses',editId),updates);
+    closeModal('edit-modal');showToast('✅ Expense updated!');
+  }catch(e2){console.error(e2);showToast('⚠️ Failed to update');}
+  btn.disabled=false; btn.textContent='Save Changes';
+}
+async function resetEditChance(id){
+  const e=state.expenses.find(x=>x.id===id);if(!e)return;
+  if(!confirm('Give this branch admin one more edit chance for this expense?'))return;
+  try{
+    const {db,doc,updateDoc} = fb;
+    await updateDoc(doc(db,'expenses',id),{editCount:0});
+    showToast('🔓 Edit chance reset for this expense');
+  }catch(err){console.error(err);showToast('⚠️ Failed to reset');}
+}
+function openHistory(id){
+  const e=state.expenses.find(x=>x.id===id);if(!e||!e.history||!e.history.length)return;
+  const rows=e.history.slice().sort((a,b)=>b.editedAt-a.editedAt).map(h=>{
+    const catName=state.categories[h.catIdx]||'Unknown';
+    const dt=new Date(h.editedAt);
+    return `<div class="branch-manage-row" style="align-items:flex-start">
+      <div class="bmr-icon">🕘</div>
+      <div class="bmr-info">
+        <div class="bmr-name">Previous: ${fmtFull(h.amount)} — ${catName}</div>
+        <div class="bmr-admin">📅 ${h.date} &nbsp;|&nbsp; 👤 ${h.staff}${h.desc?' — '+h.desc:''}<br>Edited by ${h.editedBy} on ${dt.toLocaleDateString('en-IN')} ${dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('history-list').innerHTML=rows;
+  document.getElementById('history-modal').classList.remove('hidden');
+}
+function openDelete(id){deleteId=id;document.getElementById('delete-modal').classList.remove('hidden');}
+async function confirmDelete(){
+  const btn=document.getElementById('confirm-delete-btn'); btn.disabled=true; btn.textContent='Deleting...';
+  try{
+    const {db,doc,deleteDoc} = fb;
+    await deleteDoc(doc(db,'expenses',deleteId));
+    closeModal('delete-modal');showToast('🗑️ Expense deleted');
+  }catch(e){console.error(e);showToast('⚠️ Failed to delete');}
+  btn.disabled=false; btn.textContent='Delete';
+}
+function openContactModal(){document.getElementById('contact-modal').classList.remove('hidden');}
+function closeModal(id){
+  document.getElementById(id).classList.add('hidden');
+  editId=null;deleteId=null;editBranchId=null;editBillData=null;
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV(){
+  const isSA=session.role==='super';
+  const list=isSA?state.expenses:state.expenses.filter(e=>e.branchId===session.branchId);
+  if(!list.length){showToast('⚠️ No expenses to export');return;}
+  const rows=[['Date','Branch','Amount (₹)','Category','Staff','Description','Has Bill','Added By'],
+    ...list.map(e=>[e.date,branchById(e.branchId).name,e.amount,state.categories[e.catIdx]||'Unknown',e.staff,e.desc||'',e.bill?'Yes':'No',e.addedBy||''])];
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='expenses_'+(isSA?'all':'branch')+'_'+today()+'.csv';
+  a.click();showToast('📥 Exported!');
+}
+
+/* ── EXPORT EXCEL / PDF (Reports tab, respects current date-range/branch/category filter) ── */
+function reportFileLabel(){
+  const bId=getReportBranchId();
+  const scope=bId?branchById(bId).name.replace(/\s+/g,'_'):'AllBranches';
+  const {from,to}=getReportRange();
+  return scope+'_'+from+'_to_'+to;
+}
+function exportExcel(){
+  if(typeof XLSX==='undefined'){showToast('⚠️ Excel library still loading, try again in a moment');return;}
+  const isSA=session.role==='super';
+  const list=getReportExpenses();
+  const allocs=getReportAllocations();
+  if(!list.length&&!allocs.length){showToast('⚠️ No data in this range to export');return;}
+  const wb=XLSX.utils.book_new();
+  const expRows=list.map(e=>({
+    Date:e.date, Branch:branchById(e.branchId).name, Category:state.categories[e.catIdx]||'Unknown',
+    Staff:e.staff, Description:e.desc||'', 'Amount (₹)':e.amount, 'Added By':e.addedBy||'', Edited:(e.editCount||0)>0?'Yes':'No'
+  }));
+  const wsExp=XLSX.utils.json_to_sheet(expRows.length?expRows:[{Date:'',Branch:'',Category:'',Staff:'',Description:'','Amount (₹)':'','Added By':'',Edited:''}]);
+  XLSX.utils.book_append_sheet(wb,wsExp,'Expenses');
+
+  const catTotals={};list.forEach(e=>{catTotals[e.catIdx]=(catTotals[e.catIdx]||0)+e.amount;});
+  const catRows=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([ci,amt])=>({Category:state.categories[ci]||'Unknown','Total (₹)':amt}));
+  const wsCat=XLSX.utils.json_to_sheet(catRows.length?catRows:[{Category:'',  'Total (₹)':''}]);
+  XLSX.utils.book_append_sheet(wb,wsCat,'Category Summary');
+
+  const allocRows=allocs.map(a=>({Date:a.date, Branch:branchById(a.branchId).name, 'Amount (₹)':a.amount, Source:a.source||'', Note:a.note||'', 'Added By':a.by||''}));
+  const wsAlloc=XLSX.utils.json_to_sheet(allocRows.length?allocRows:[{Date:'',Branch:'','Amount (₹)':'',Source:'',Note:'','Added By':''}]);
+  XLSX.utils.book_append_sheet(wb,wsAlloc,'Cash Allocations');
+
+  XLSX.writeFile(wb,'Report_'+reportFileLabel()+'.xlsx');
+  showToast('📊 Excel exported!');
+}
+function exportPDF(){
+  if(typeof window.jspdf==='undefined'){showToast('⚠️ PDF library still loading, try again in a moment');return;}
+  const isSA=session.role==='super';
+  const list=getReportExpenses();
+  const allocs=getReportAllocations();
+  if(!list.length&&!allocs.length){showToast('⚠️ No data in this range to export');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const {from,to}=getReportRange();
+  const bId=getReportBranchId();
+  const scopeLabel=bId?branchById(bId).name:'All Branches';
+  const grandTotal=list.reduce((s,e)=>s+e.amount,0);
+
+  doc.setFontSize(16);doc.text('First Journey — Expense Report',14,16);
+  doc.setFontSize(10);doc.setTextColor(100);
+  doc.text('Scope: '+scopeLabel+'   |   Range: '+(repPreset==='all'?'All Time':from+' to '+to),14,23);
+  doc.text('Total Expenses: '+fmtFull(grandTotal)+'   |   Count: '+list.length,14,29);
+
+  doc.autoTable({
+    startY:35,
+    head:[isSA?['Date','Branch','Category','Staff','Amount (₹)']:['Date','Category','Staff','Amount (₹)']],
+    body:list.map(e=>isSA?[e.date,branchById(e.branchId).name,state.categories[e.catIdx]||'Unknown',e.staff,fmtFull(e.amount)]:[e.date,state.categories[e.catIdx]||'Unknown',e.staff,fmtFull(e.amount)]),
+    styles:{fontSize:8}, headStyles:{fillColor:[75,123,255]}
+  });
+
+  const catTotals={};list.forEach(e=>{catTotals[e.catIdx]=(catTotals[e.catIdx]||0)+e.amount;});
+  const catRows=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([ci,amt])=>[state.categories[ci]||'Unknown',fmtFull(amt)]);
+  if(catRows.length){
+    let y=doc.lastAutoTable.finalY+8;
+    doc.setFontSize(12);doc.setTextColor(0);doc.text('Category Summary',14,y);
+    doc.autoTable({startY:y+3,head:[['Category','Total (₹)']],body:catRows,styles:{fontSize:8},headStyles:{fillColor:[162,89,255]}});
+  }
+
+  if(allocs.length){
+    let y=doc.lastAutoTable.finalY+8;
+    doc.setFontSize(12);doc.setTextColor(0);doc.text('Cash Allocations',14,y);
+    doc.autoTable({
+      startY:y+3,
+      head:[isSA?['Date','Branch','Amount (₹)','Source','Added By','Note']:['Date','Amount (₹)','Source','Added By','Note']],
+      body:allocs.map(a=>isSA?[a.date,branchById(a.branchId).name,fmtFull(a.amount),a.source||'',a.by||'',a.note||'']:[a.date,fmtFull(a.amount),a.source||'',a.by||'',a.note||'']),
+      styles:{fontSize:8}, headStyles:{fillColor:[0,196,140]}
+    });
+  }
+
+  doc.save('Report_'+reportFileLabel()+'.pdf');
+  showToast('📄 PDF exported!');
+}
+
+/* ── TOAST ── */
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ── INIT ── */
+document.getElementById('login-btn').disabled=true;
+document.getElementById('login-pin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('f-date').value=today();
+
+window.addEventListener('online', ()=>{ if(firestoreReady) setSyncStatus('online'); });
+window.addEventListener('offline', ()=>setSyncStatus('offline'));
+
+/* Expose functions used by inline onclick handlers (since this script is not a module) */
+window.selectRole=selectRole; window.doLogin=doLogin; window.doLogout=doLogout;
+window.showTab=showTab; window.allocateCash=allocateCash; window.addExpense=addExpense;
+window.setFilter=setFilter; window.previewBill=previewBill; window.clearBill=clearBill;
+window.viewBill=viewBill; window.openEdit=openEdit; window.saveEdit=saveEdit;
+window.openDelete=openDelete; window.confirmDelete=confirmDelete; window.openContactModal=openContactModal;
+window.closeModal=closeModal; window.exportCSV=exportCSV; window.addBranch=addBranch;
+window.openBranchEdit=openBranchEdit; window.saveBranchEdit=saveBranchEdit; window.deleteBranch=deleteBranch;
+window.editCat=editCat; window.deleteCat=deleteCat; window.addCategory=addCategory;
+window.resetEditChance=resetEditChance; window.openHistory=openHistory;
+window.setRepPreset=setRepPreset; window.setRepCatFilter=setRepCatFilter;
+window.exportExcel=exportExcel; window.exportPDF=exportPDF; window.changeSuperPin=changeSuperPin;
+window.saveRecoveryPin=saveRecoveryPin; window.openForgotPin=openForgotPin; window.submitForgotPin=submitForgotPin;
+</script>
+</body>
+</html>
